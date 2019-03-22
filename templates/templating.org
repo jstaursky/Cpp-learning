@@ -1,0 +1,6 @@
+#+TITLE:C++ Templating
+
+* Function Templates
+Function templates provide a functional behavior that can be called for different types. Alt. function templates represent a family of functions.
+
+i.e., Rather than defining a new function for each type, we can define a _function template_.

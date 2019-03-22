@@ -1,0 +1,269 @@
+#+TITLE:C++ Basics
+* References
+Like a pointer, a reference is an alias for an object (or variable), is usually implemented to hold a machine address of an object (or variable), and does not impose performance overhead compared to pointers.
+
+- The notation X& means “reference to X”.
+#+begin_src C++
+int val = 1;
+int &refval = val;
+#+end_src
+Note:
+- A reference variable must be initialized.
+- A reference variable must be initialized to an object of the same type as the reference type (e.g., =int= in example above).
+
+** Differences between reference and pointer.
+1) A reference can be accessed with exactly the same
+   syntax as the name of an object.
+2) A reference always refers to the object to which it
+   was initialized.
+3) There is no “null reference”, and we may assume
+   that a reference refers to an object. 
+   
+* Classes
+A class is a collection of _class members_ which can be:
+- member variables (a.k.a. fields)
+- member functions (a.k.a. methods)
+- member types or typedefs (e.g. "nested classes")
+- member templates (of any kind: variable, function, class or alias template)
+
+Declaring a class creates a new type, and it becomes possible to instantiate objects of that class.
+Example,
+#+begin_src C++
+  class Vector {
+  public:
+    int x;
+    int y;
+    int z;
+  };
+  Vector myVector;
+  my_vector.x = 10;
+#+end_src
+
+** Access control and Encapsulation
+*** private specifier
+=Class= _default access specifier_ for members is _private_.
+We can also designate members access control explicitly.
+#+begin_src C++
+  class myClass {
+    private:
+      int foo;
+  }
+#+end_src
+Members defined after a _private_ specifier are:
+- _inaccessible_ to code defined outside the class. (i.e., code that uses the class for its functionality can only use what is defined in the classes interface).
+- _accessible_ to the member functions of the class.
+
+*** protected specifier
+Only the class itself, derived classes and friends have access.
+
+*** public specifier
+Everyone has access to class members.
+
+** Constructors
+A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class.
+- constructors have the same as the class it initializes.
+- constructors do not have a return type.
+- constructors cannot be declared =const=.
+- constructors may be defined inside the class or declared in-class and defined outside the class.
+- constructors can be overloaded.
+#+begin_src C++
+  class foo {
+    foo();                        // constructor declaration.
+    private:
+      int bar;
+      string fu;
+      // code.
+  };
+  // constructor definition.
+  foo::foo()
+  {
+    bar = 1;
+      // code..
+  }
+  // constructor definition.
+  foo::foo(string name)
+  {
+    fu = name;
+  }
+#+end_src
+
+* Inheritance - derived classes
+If a class B inherits from class A, then A is B's parent & B is the child of A
+- We say that B is a _derived class_ from A.
+- We say that A is the _base class_.
+
+A derived is defined as such:
+#+begin_src C++
+  class base 
+  {
+    // some code
+  };
+
+  class derived : base
+  {
+    // some code
+  };
+#+end_src
+Note:
+- The default specifier of =class= is =private= and so any class that derives from the derived class will be unable to access the base classes members.
+- A base class must be _defined_, not just _declared_ before defining the derived class.
+
+*Summary*
+- use =private:= when you want members to be contained to that specific class
+- use =protected:= when you want to share across classes but not add to the class interface.
+- use =public:= when you want to create an interface.
+
+** 3 forms of inheritance
+Inheritance can be given certain constraints via access specifiers.
+#+begin_quote
+Under inheritance, the scope of a derived class is nested inside the scope of its base class(es).
+#+end_quote
+
+Suppose in the following we initially have the following base class,
+#+begin_src C++
+  class base {
+  public:
+    int p1;
+  protected:
+    int p2;
+  private:
+    int p3;
+  };
+#+end_src
+
+*** public
+#+begin_src C++
+  class derived : public base {   // public inheritance!!
+      void foo() {
+         p1 = 0;             // well formed, p1 is public in derived.
+         p2 = 0;             // well formed, p2 is protected in derived.
+         p3 = 0;             // WRONG! p3 is private in base.
+      }
+  };
+  derived bar;
+  bar.p1 = 1;                     // well formed, p1 is public.
+  bar.p2 = 1;                     // WRONG! p2 is protected.
+  bar.p3 = 1;                     // WRONG! p3 is inaccessible.
+#+end_src
+Under =public= inheritance,
+- _inherited members_ retain the same access control specification they had in the base class.
+  (because the scope of a derived class is nested inside the scope of its base class).
+- classes that derive from the derived class _will be able to access the same base class members as the derived class_.
+- =public= members of the base class become part of the interface of the derived class as well.
+
+*** private
+#+begin_src C++
+  class derived : private base {  // private inheritance!!
+      void foo() {
+         p1 = 0;             // well formed, p1 is private in derived.
+         p2 = 0;             // well formed, p2 is private in derived.
+         p3 = 0;             // WRONG! p3 is private in base.
+      }
+  };
+  derived bar;
+  bar.p1 = 1;                     // WRONG! p1 is private.
+  bar.p2 = 1;                     // WRONG! p2 is private.
+  bar.p3 = 1;                     // WRONG! p3 is inaccessible.
+#+end_src
+Under =private= inheritance,
+- _inherited members_ become private in derived class.
+- classes that derive from derived class _will not be able to access any members of the base_ class.
+
+*** protected
+Under =protected= inheritance,
+#+begin_src C++
+  class derived : protected base {  // protected inheritance!!
+      void foo() {
+         p1 = 0;             // well formed, p1 is protected in derived.
+         p2 = 0;             // well formed, p2 is protected in derived.
+         p3 = 0;             // WRONG! p3 is private in base.
+      }
+  };
+  derived bar;
+  bar.p1 = 1;                     // WRONG! p1 is protected.
+  bar.p2 = 1;                     // WRONG! p2 is protected.
+  bar.p3 = 1;                     // WRONG! p3 is inaccessible.
+#+end_src
+- _inherited members_ become protected in derived class.
+- classes that derive from derived class _will be able to access the same base class members as the derived_ class.
+
+* Friendship
+The =friend= keyword is used to _give other classes and functions access to private and protected members of the class_, even though they are defined outside the class's scope.
+#+begin_quote
+This is useful so you can leverage the abilities of other class's that aren't derived from your class's base class or when you want to add functions to an interface that are not apart your class's class.
+#+end_quote
+Note: Friends are not members of the class and are not affected by the access control of the section in which they are declared.
+
+This is how you use =friend=,
+#+begin_src C++
+  class myClass {
+    friend void foo();
+    private:
+      int bar = 0;
+  };
+  void foo(myClass fu) {
+    fu.bar++;
+  }
+
+#+end_src
+
+
+* Function Overloading
+Function overloading is having multiple functions declared in the same scope with the same name, differing only in the arguments they accept (a.k.a. the functions _signature_).
+
+#+begin_quote
+The Compiler infers which of the functions to call from the parameters you provide it.
+#+end_quote
+
+Example,
+#+begin_src C++
+  void print(std::string const &str)
+  {
+    std::cout << "This is a string: " << str << std::endl;
+  }
+
+  void print(int num)
+  {
+    std::cout << "This is an int: " << num << std::endl;
+  }
+
+  // Can call print w/out worrying about whether the arg is a string or int.
+  print("Hello World");
+  print(1932);
+#+end_src
+But be careful! Following circumstances can be tricky:
+- =void print(int num)= and =void print(double num)= are defined. Then when calling =print(5)= it is not immediatley clear which overload of print is called.
+- overloads that accept optional parameters.
+  Example,
+  #+begin_src C++
+    void print(int num1, int num2 = 0)
+    //num2 defaults to 0 if not included
+    {
+        std::cout << "These are ints: << num1 << " and \
+            " << num2 << std::endl";
+    }
+    void print(int num)
+    {
+        std::cout << "This is an int: " << num << std::endl;
+    }
+  #+end_src
+  A for a call such as =print(17)= the compiler will be unable to tell whether to use the first or second function definition b/c the optional parameter.
+
+** Optional parameters
+Example,
+#+begin_src C++
+  void countdown(int n = 3)
+  {
+    while (n >= 0)
+      std::cout << n-- << '\n';
+  }
+#+end_src
+A call such as =countdown()= will print
+#+begin_src text
+  3
+  2
+  1
+#+end_src
+
+** LIMITS
+You cannot overload a function based on its return type.
