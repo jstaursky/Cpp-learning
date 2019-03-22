@@ -47,7 +47,7 @@ We can also designate members access control explicitly.
   class myClass {
     private:
       int foo;
-  }
+  };
 #+end_src
 Members defined after a _private_ specifier are:
 - _inaccessible_ to code defined outside the class. (i.e., code that uses the class for its functionality can only use what is defined in the classes interface).
@@ -59,6 +59,50 @@ Only the class itself, derived classes and friends have access.
 *** public specifier
 Everyone has access to class members.
 
+** Defining Member Functions
+Class member functions can be defined either inside or outside the class declaration.
+
+*** In-class member function definitions
+When a class function is defined within the class, it is called an _inline function_.
+- Do this when the body of the function is small, otherwise just write the function prototype inside the class and define the function outside the class.
+  Example in-class member function definition.
+  #+begin_src C++
+    class foo {
+      private: 
+        int bar;
+      public:
+        void fu(int b) {
+          bar = b;
+        }
+    };
+  #+end_src
+  Note:
+  - You can _request_ the compiler to inline the function during compilation via the keyword =inline=.
+    e.g.,
+    #+begin_src C++
+      inline void fu(int b) {
+        bar = b;
+      }
+    #+end_src
+    This might make the compiler replace the function with an equivalent macro and thereby eliminate the overhead associated with calling a function.
+    
+*** member functions defined outside the class
+Class member functions defined outsided the class must:
+- Have the function prototype declared inside the class definition.
+- Define the functions implementation with the help of the _scope operator_.
+  #+begin_src C++
+    class foo {
+      private:
+        int bar;
+      public:
+        void fu(int b);             // Function prototype.
+    };
+
+    void foo::fu(int b) {
+      bar = b;
+    }
+  #+end_src
+  
 ** Constructors
 A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class.
 - constructors have the same as the class it initializes.
@@ -71,7 +115,7 @@ A constructor ensures member data of a new instantiation of a class object is se
     foo();                        // constructor declaration.
     private:
       int bar;
-      string fu;
+      std::string fu;
       // code.
   };
   // constructor definition.
@@ -81,12 +125,53 @@ A constructor ensures member data of a new instantiation of a class object is se
       // code..
   }
   // constructor definition.
-  foo::foo(string name)
+  foo::foo(const std::string name)
   {
     fu = name;
   }
 #+end_src
 
+*** Synthesized Default Constructor
+When we do not initialize a class using a constructor the members are default initialized by the _synthesized default constructor_ (fancy name for a compiler generated constructor).
+The default constructor initializes members by:
+1) Determining if there is an in-class initializer.
+   #+begin_src C++
+     class foo {
+       int bar = 0;                  // in-class initialization.
+     };
+   #+end_src
+2) Default initializing the member.
+   (unintialized local variables of built-in type are left undefined).
+   
+Note:
+- If we define any constructors, the class will not have a default constructor unless we define it ourselves.
+  Here is how to define the default constructor explicitly,
+  #+begin_src C++
+  foo() = default;
+  #+end_src
+
+Note:
+- If a class has a member of =class= type, and that class does not have a default constructor, the compiler _cannot initialize_ that member.
+
+*** Constructors with initialization lists
+Allows us to replace explicit statements setting member data with implicit initialization.
+#+begin_src C++
+  class foo {
+    foo();                        // constructor declaration.
+    private:
+      int bar;
+      std::string fu;
+      // code.
+  };
+  // constructor definition.
+  foo::foo(const std::string fu): fu (fu) { }
+
+#+end_src
+Note:
+- Using an initialization list, we avoid having to name the arguments something different from the member data variable names.
+- When a member is omitted from the constructor initializer list, it is implicitly initialized using the same process as used by the synthesized default constructor.
+
+  
 * Inheritance - derived classes
 If a class B inherits from class A, then A is B's parent & B is the child of A
 - We say that B is a _derived class_ from A.
