@@ -61,6 +61,8 @@ Everyone has access to class members.
 
 ** Defining Member Functions
 Class member functions can be defined either inside or outside the class declaration.
+Note:
+- Inside a member function, we can refer directly to the members of the object on which the function was called (i.e., other members inside the class which the member function is apart of). We do not have to use the member access operator.
 
 *** In-class member function definitions
 When a class function is defined within the class, it is called an _inline function_.
@@ -103,6 +105,21 @@ Class member functions defined outsided the class must:
     }
   #+end_src
   
+*** Const member functions
+Member functions of a class can be declared =const=, which tells the compiler that the function will not modify the object it is apart of.
+- In a const member function you cannot modify any member variables.
+Example
+#+begin_src C++
+  class foo {
+    private: 
+      int bar;
+    public:
+      int barValue() const { return bar; }
+      void fu(int var) { bar = var; }
+  }
+#+end_src
+So in this example =fu()= could not be declared as a const member function.
+
 ** Constructors
 A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class.
 - constructors have the same as the class it initializes.
