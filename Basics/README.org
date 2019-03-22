@@ -180,15 +180,44 @@ Allows us to replace explicit statements setting member data with implicit initi
       std::string fu;
       // code.
   };
-  // constructor definition.
+  // constructor definition w/ initialization list.
   foo::foo(const std::string fu): fu (fu) { }
 
 #+end_src
 Note:
 - Using an initialization list, we avoid having to name the arguments something different from the member data variable names.
 - When a member is omitted from the constructor initializer list, it is implicitly initialized using the same process as used by the synthesized default constructor.
-
+** Destructors
+Destructors delete objects. If a destructor is not supplied by the programmer, then the compiler supplies a basic one. However, the compiler-supplied destructor does an absolute minimum and is only sufficient for very basic classes that do no dynamic memory allocation.
+#+begin_src C++
+  class foo {
+    public:
+      ~foo();                     // destructor
+      // code.
+  }
+#+end_src
   
+#+begin_quote
+destructors do whatever work is needed to free the resoures used by an object and destroy the nonstatic data members of the object.
+#+end_quote
+
+1) Destructors are declared using the same name as the class along with a =~= prefix.
+2) Destructors take no parameters. They cannot be overloaded. There is always one and only one desctructor for a given class.
+3) Destructors have no return type.
+#+begin_src C++
+  class foo {
+    int* bar;
+    public:
+      foo(): bar (new int[10]) {} // constructor
+      ~foo() { delete[] bar; }    // destructor
+  };
+
+  void f() {
+    foo* fu = new foo[2];         // calls default constructor x2
+    delete[] fu;                  // calls destructors on fu[0] & fu[1]
+  }
+#+end_src
+
 * Inheritance - derived classes
 If a class B inherits from class A, then A is B's parent & B is the child of A
 - We say that B is a _derived class_ from A.
