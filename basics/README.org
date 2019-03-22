@@ -339,7 +339,7 @@ This is how you use =friend=,
 #+end_src
 
 
-* Function
+* Functions
 ** Function Overloading
 Function overloading is having multiple functions declared in the same scope with the same name, differing only in the arguments they accept (a.k.a. the functions _signature_).
 
