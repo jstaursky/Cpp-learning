@@ -223,7 +223,7 @@ If a class B inherits from class A, then A is B's parent & B is the child of A
 - We say that B is a _derived class_ from A.
 - We say that A is the _base class_.
 
-A derived is defined as such:
+A derived class is defined as such:
 #+begin_src C++
   class base 
   {
@@ -262,7 +262,7 @@ Suppose in the following we initially have the following base class,
   };
 #+end_src
 
-*** public
+*** public inheritance
 #+begin_src C++
   class derived : public base {   // public inheritance!!
       void foo() {
@@ -282,7 +282,7 @@ Under =public= inheritance,
 - classes that derive from the derived class _will be able to access the same base class members as the derived class_.
 - =public= members of the base class become part of the interface of the derived class as well.
 
-*** private
+*** private inheritance
 #+begin_src C++
   class derived : private base {  // private inheritance!!
       void foo() {
@@ -300,7 +300,7 @@ Under =private= inheritance,
 - _inherited members_ become private in derived class.
 - classes that derive from derived class _will not be able to access any members of the base_ class.
 
-*** protected
+*** protected inheritance
 Under =protected= inheritance,
 #+begin_src C++
   class derived : protected base {  // protected inheritance!!
