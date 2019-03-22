@@ -293,7 +293,8 @@ This is how you use =friend=,
 #+end_src
 
 
-* Function Overloading
+* Function
+** Function Overloading
 Function overloading is having multiple functions declared in the same scope with the same name, differing only in the arguments they accept (a.k.a. the functions _signature_).
 
 #+begin_quote
@@ -349,6 +350,3 @@ A call such as =countdown()= will print
   2
   1
 #+end_src
-
-** LIMITS
-You cannot overload a function based on its return type.
