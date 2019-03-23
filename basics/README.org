@@ -28,9 +28,9 @@ Using =const= with pointers can enable certain types of protections depending on
 #+end_src
 Provides the following type of protection.
 #+begin_quote
-Protects the integer being pointed to from being changed/modified. \\
-Value of foo may be changed. \\
-Value of *foo cannot be changed.
+Protects the integer being pointed to from being changed/modified.
+- The value of foo can be changed.
+- The value of *foo cannot be changed.
 #+end_quote
 Note:
 - the integer being pointed to does not have to be declared =const=.
