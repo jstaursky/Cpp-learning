@@ -116,9 +116,9 @@ where
 ~cast-name~ determines what kind of conversion is performed.
 *** TODO static_casting
 ~static_cast~ can convert:
-1) Pointers to classes of related type
-   • Compiler error if classes are not related -- see example below w/ ~static_cast<A*>(&b);~.
-   • Dangerous to cast down a class hierarchy -- see example below w/ ~static_cast<C*>(&b);~.
+1) Pointers to classes of related type.
+   - Compiler error if classes are not related -- see example below w/ ~static_cast<A*>(&b);~.
+   - Dangerous to cast down a class hierarchy -- see example below w/ ~static_cast<C*>(&b);~.
 2) Non-pointer conversion
    • e.g. float to int.
 static_cast is checked at compile time.
