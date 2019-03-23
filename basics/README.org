@@ -1,5 +1,78 @@
 #+TITLE:C++ Basics
-* References
+* TODO Pointer types
+Pointers are declarations of the form.
+#+begin_src C++
+  int *foo = &bar;
+#+end_src
+This assigns =foo= to the address of the variable =bar=;
+- To access the value of =bar=, you must make statements of the form =*foo=.
+
+** Complicated pointer declarations with const
+Using =const= with pointers can enable certain types of protections depending on your needs.
+*** Pointers to a constant int
+#+begin_src C++
+  int const* foo;            // pointer to const int
+#+end_src
+Provides the following type of protection.
+#+begin_quote
+Protects the integer being pointed to from being changed/modified.
+#+end_quote
+Note:
+- the integer being pointed to does not have to be declared =const=.
+- the pointer to a constant int can change where it points, but cannot change the value of the variable to which it points.
+e.g.,
+#+begin_src C++
+  int fu = 0;
+  int const* foo = &fu;           // foo is a pointer to a const int.
+
+  int const bar = 1;
+  foo = &bar;                     // foo can be changed to ref
+                                  // another int of constant int.
+#+end_src
+
+TL;DR - =int const* foo= protects the values of the variable to which it points. Preventing assignments such as =*foo = 100=. \\
+Such assignments will result in the compiler error:
+#+begin_src text
+you cannot assign tp a variable that is const.
+#+end_src
+
+*** Constant pointers
+#+begin_src C++
+  int* const foo;            // const pointer to int
+#+end_src
+Provides the following type of protection.
+#+begin_quote
+The pointer cannot be changed to point to somewhere else.
+#+end_quote
+Note:
+- =foo= can change the value of the variable it is initialized to.
+- once initialized to a variable, =foo= cannot change to point elsewhere.
+
+**** Caveats to using constant pointers
+=int* const foo= must be initialized to a nonconstant variable.
+For some reason, intializing a constant pointer to int to a constant int can enable the const int to be changed through the constant pointer to int.
+i.e.,
+#+begin_src C++
+  int const foo = 1;
+  int* const bar = &foo;
+#+end_src
+Results in the compiler warning
+#+begin_src text
+initialization discards qualifiers from pointer target type.
+#+end_src
+
+*** Constant pointers to constants
+#+begin_src C++
+  int const* const foo = &bar;    // const pointer to const int
+#+end_src
+Provides the following type of protection.
+#+begin_quote
+The pointer cannot point to another variable once initialized, and the value of the variable being pointed to cannot be changed.
+#+end_quote
+Note:
+- A constant pointer to a constant must be initialized when declared.
+
+* Reference types
 Like a pointer, a reference is an alias for an object (or variable), is usually implemented to hold a machine address of an object (or variable), and does not impose performance overhead compared to pointers.
 
 - The notation X& means “reference to X”.
@@ -19,6 +92,39 @@ Note:
 3) There is no “null reference”, and we may assume
    that a reference refers to an object. 
    
+** Benefits to using references 
+C++ passes parameters to functions _by value_, which simply means that the called function is given _the values_ of its arguements rather than the arguments themselves--the arguments themselves are left alone and unmodified. This can induce a non-negligable overhead if the value of a variable being passed is very large; so it becomes desirable to instead pass a reference to the argument and act upon the argument itself.
+
+Example: Passing by reference
+#+begin_src C++
+  void function(int& foo);     // function prototype.
+  // ...
+  int bar = 1;
+  function(bar);                  // bar returns modified according to 
+                                  // the implementation of function.
+#+end_src
+ Passing by reference removes the overhead associated with passing by value and results in an increased efficiency with the function call.
+ 
+*** Passing by reference caveat
+However, passing by reference also opens the possibility of the argument being passed to be modified. This potientially undesirable behavior can be negated if we add to the functions parameter declaration the =const= qualifier.
+#+begin_src C++
+  void function(int const& foo);
+  // ...
+  int bar = 1;
+  function(bar);
+#+end_src
+Now =bar= upon return will stay unmodifed yet we have retained the increase in efficiency associated with passing by reference.
+
+**** Aside on declarations
+The following two declarations are equivalent.
+#+begin_src C++
+  // following two declarations are equivalent.
+  const int& foo;                 // foo is reference to const int
+  int const& foo;                 // foo is reference to const int
+#+end_src
+It is preferable to follow the convention of placing =const= after whatever type you want to remain constant. This convention enables you to always know the answer to the question "what is constant?" it is always what is in front of the =const= qualifier.
+
+
 * Classes
 A class is a collection of _class members_ which can be:
 - member variables (a.k.a. fields)
