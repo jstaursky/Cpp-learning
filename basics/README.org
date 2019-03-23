@@ -473,7 +473,7 @@ A destructor is a member function that is automatically called when an object is
 2) Destructors take no parameters. They cannot be overloaded. There is always one and only one desctructor for a given class.
 3) Destructors have no return type.
 
-*** When is a Desctructor called
+*** When is a Destructor called
 A destructor is used automatically whenever an object of its type is destroyed/deleted: i.e.,
 1) variables are destroyed when they go out of scope.
 2) Members of an object are destroyed when the object of which they are a part of is destroyed.
@@ -509,7 +509,7 @@ Example
   }
 #+end_src
 
-**** Caveat
+**** Caveats
 A destructor is not run when a reference or a pointer to an object goes out of scope.
 
 #+begin_src C++
@@ -520,6 +520,34 @@ A destructor is not run when a reference or a pointer to an object goes out of s
                                   // inside bar.
 #+end_src
 
+Destructors in a base class should be declared ~virtual~, this allows derived classes to override with their parents destructor when obj of their type is deleted.
+
+So really the example given earlier should instead look like
+#+begin_src C++
+  class Example {
+  public:
+      Example() = delete ;
+      Example(int count) ;
+      virtual ~Example() ;        // Best practice.
+      // A pointer to some memory
+      // that will be allocated.
+      float *values = nullptr ;
+  };
+
+  Example::Example(int count) {
+      // Allocate memory to store "count"
+      // floats.
+      values = new float[count];
+  }
+  Example::~Example() {
+      // The destructor must free this
+      // memory. Only do so if values is not
+      // null.
+      if (values) {
+      delete[] values ;
+      }
+  }
+#+end_src
 
 *** Destructor examples
 #+begin_src C++
