@@ -114,7 +114,7 @@ where
   - ~const_cast~
   - ~reinterpret_cast~
 ~cast-name~ determines what kind of conversion is performed.
-*** TODO static_casting
+*** static_casting
 ~static_cast~ can convert:
 1) Pointers to classes of related type.
    - Compiler error if classes are not related -- see example below w/ ~static_cast<A*>(&b);~.
@@ -149,7 +149,47 @@ example static cast
   }                                  // class B type being cast down to C.
 #+end_src
 
-*** const_cast
+*** dynamic_casting
+~dynamic_cast~ can convert:
+1) Pointers to classes of related type
+2) References to classes of related type.
+~dynamic_cast~ is checked at both *compile time* and *run time*
+- Casts between unrelated classes fail at compile time.
+- Casts from base to derived fail at run time if the pointed-to-object is not the derived type.
+
+example dynamic cast
+#+begin_src C++
+  class Base {
+    public:
+      virtual void foo() { }
+      float x;
+  };
+
+  class Derived : public Base {
+    public:
+      char x;
+  };
+#+end_src
+
+#+begin_src C++
+  void foo() {
+    Base b; 
+    Derived d;
+    // OK (run-time check passes)
+    Base* bptr = dynamic_cast<Base*>(&d);
+    assert(bptr != nullptr);
+  
+    // OK (run-time check passes)
+    Derived* dptr = dynamic_cast<Derived*>(bptr);
+    assert(dptr != nullptr);
+
+    // Run-time check fails, returns nullptr
+    bptr = &b;
+    dptr = dynamic_cast<Derived*>(bptr);
+    assert(dptr != nullptr);
+  }
+#+end_src
+
 
 
 * Reference types
@@ -354,13 +394,6 @@ Note:
     class foo {
     public:
         foo() = default;
-    private:
-        int bar = 0;
-    };
-    // alternatively
-    class foo {
-    public:
-        foo();
     private:
         int bar = 0;
     };
