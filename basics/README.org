@@ -89,6 +89,69 @@ The pointer cannot point to another variable once initialized, and the value of 
 Note:
 - A constant pointer to a constant must be initialized when declared.
 
+* Type conversions - explicit conversions -- Casting
+C++ has different casting styles in addition to the traditional c-style cast.
+** C-style cast
+#+begin_src text
+  (type) expression;
+#+end_src
+example
+#+begin_src C++
+  char *foo = (char*) bar;
+#+end_src
+c-style casts cover all the cases that named casts do but named casts aid the reader what the intent behind that cast was.
+
+** Named Casts
+#+begin_src text
+  cast-name<type>(expression);
+#+end_src
+where
+- ~type~ is the target type of the conversion.
+- ~expression~ is the value to be cast.
+- ~cast-name~ may be one of
+  - ~static_cast~
+  - ~dynamic_cast~
+  - ~const_cast~
+  - ~reinterpret_cast~
+~cast-name~ determines what kind of conversion is performed.
+*** TODO =static_cast=
+static_cast can convert:
+- Pointers to classes of related type
+  • Compiler error if classes are not related -- see example below w/ ~static_cast<A*>(&b);~.
+  • Dangerous to cast down a class hierarchy -- see example below w/ ~static_cast<C*>(&b);~.
+- Non-pointer conversion
+  • e.g. float to int
+static_cast is checked at compile time.
+
+example static cast
+#+begin_src C++
+  class A {
+  public:
+      int x;
+  };
+  class B {
+  public:
+      float x;
+  };
+  class C : public B {
+  public:
+      char x;
+  };
+#+end_src
+
+#+begin_src C++
+  void foo() {
+      B b; C c;
+
+      A* aptr = static_cast<A*>(&b); // compiler error
+      B* bptr = static_cast<B*>(&c); // OK
+      C* cptr = static_cast<C*>(&b); // compiles, but dangerous
+  }                                  // class B type being cast down to C.
+#+end_src
+
+*** =const_cast=
+
+
 * Reference types
 Like a pointer, a reference is an alias for an object (or variable), is usually implemented to hold a machine address of an object (or variable), and does not impose performance overhead compared to pointers.
 
@@ -252,6 +315,7 @@ A constructor ensures member data of a new instantiation of a class object is se
 - constructors can be overloaded.
 #+begin_src C++
   class foo {
+    public:
     foo();                        // constructor declaration.
     private:
       int bar;
@@ -287,7 +351,19 @@ Note:
 - If we define any constructors, the class will not have a default constructor unless we define it ourselves.
   Here is how to define the default constructor explicitly,
   #+begin_src C++
-  foo() = default;
+    class foo {
+    public:
+        foo() = default;
+    private:
+        int bar = 0;
+    };
+    // alternatively
+    class foo {
+    public:
+        foo();
+    private:
+        int bar = 0;
+    };
   #+end_src
 
 Note:
@@ -297,6 +373,7 @@ Note:
 Allows us to replace explicit statements setting member data with implicit initialization.
 #+begin_src C++
   class foo {
+    public:
     foo();                        // constructor declaration.
     private:
       int bar;
