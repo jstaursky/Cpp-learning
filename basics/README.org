@@ -466,12 +466,50 @@ Destructors delete objects. If a destructor is not supplied by the programmer, t
 #+end_src
   
 #+begin_quote
-destructors do whatever work is needed to free the resoures used by an object and destroy the nonstatic data members of the object.
+A destructor is a member function that is automatically called when an object is destroyed.
 #+end_quote
-
+*Destructor Declaration rules*.
 1) Destructors are declared using the same name as the class along with a =~= prefix.
 2) Destructors take no parameters. They cannot be overloaded. There is always one and only one desctructor for a given class.
 3) Destructors have no return type.
+
+*** When is a Desctructor called
+A destructor is used automatically whenever an object of its type is destroyed/deleted: i.e.,
+1) variables are destroyed when they go out of scope.
+2) Members of an object are destroyed when the object of which they are a part of is destroyed.
+3) Dynamically allocated objects are destroyed when the ~delete~ operator is applied to a pointer to the object.
+#+begin_quote
+Destructors are never called explicitly by the programmer. Calls to destructors are inserted automatically by the compiler.
+#+end_quote
+
+Example 
+#+begin_src C++
+  class Example {
+  public:
+      Example() = default;
+      Example(int count);
+      ~Example();
+      // A pointer to some memory
+      // that will be allocated.
+      float *values = nullptr ;
+  };
+
+  Example::Example(int count) {
+      // Allocate memory to store "count"
+      // floats.
+      values = new float[count];
+  }
+  Example::~Example() {
+      // The destructor must free this
+      // memory. Only do so if values is not
+      // null.
+      if (values) {
+          delete[] values ;
+      }
+  }
+#+end_src
+
+*** Destructor examples
 #+begin_src C++
   class foo {
     int* bar;
