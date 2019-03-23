@@ -29,8 +29,8 @@ Using =const= with pointers can enable certain types of protections depending on
 Provides the following type of protection.
 #+begin_quote
 Protects the integer being pointed to from being changed/modified.
-- The value of =foo= can be changed.
-- The value of =*foo= cannot be changed.
+- The value of =foo= can change.
+- The value of =*foo= cannot change.
 #+end_quote
 Note:
 - the integer being pointed to does not have to be declared =const=.
@@ -45,7 +45,7 @@ e.g.,
                                   // another int of constant int.
 #+end_src
 
-TL;DR - =int const* foo= protects the values of the variable to which it points. Preventing assignments such as =*foo = 100=. \\
+*TL;DR* =int const* foo= protects the values of the variable to which it points. Preventing assignments such as =*foo = 100=. \\
 Such assignments will result in the compiler error:
 #+begin_src text
 you cannot assign tp a variable that is const.
@@ -58,6 +58,8 @@ you cannot assign tp a variable that is const.
 Provides the following type of protection.
 #+begin_quote
 The pointer cannot be changed to point to somewhere else.
+- The value of =*foo= can change.
+- The value of =foo= cannot change.
 #+end_quote
 Note:
 - =foo= can change the value of the variable it is initialized to.
