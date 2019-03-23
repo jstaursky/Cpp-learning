@@ -6,6 +6,7 @@ Pointers are declarations of the form.
 #+end_src
 This assigns =foo= to the address of the variable =bar=;
 - To access the value of =bar=, you must make statements of the form =*foo=.
+=*= is the _indirection_ or _dereference_ operator which enables you to access the object the pointer points to.
 
 ** Complicated pointer declarations with const
 Using =const= with pointers can enable certain types of protections depending on your needs.
