@@ -190,7 +190,34 @@ example dynamic cast
   }
 #+end_src
 
+** const_casting
+~const_cast~ adds or strips const-ness
+- Dangerous
+#+begin_src C++
+  void foo(int* x) {
+    *x++;
+  }
 
+  void bar(const int* x) {
+    foo(x);                       // compiler error
+
+    foo(const_cast<int*>(x));     // succeeds
+  }
+
+  int main(int argc, char** argv) {
+    int x = 7;
+    bar(&x);
+    return 0;
+  }
+#+end_src
+
+** reinterpret_cast
+~reinterpret_cast~ casts between incompatible types
+- Low-level reinterpretation of the bit pattern
+- e.g., storing a pointer in an ~int~, or vice-versa
+  - works as long as the integral type is "wide" enough
+- converting between incompatible pointers
+  - Dangerous
 
 * Reference types
 Like a pointer, a reference is an alias for an object (or variable), is usually implemented to hold a machine address of an object (or variable), and does not impose performance overhead compared to pointers.
@@ -347,8 +374,9 @@ Example
 So in this example =fu()= could not be declared as a const member function.
 
 ** Constructors
-A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class.
-- constructors have the same as the class it initializes.
+A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class. \\
+Note:
+- constructors have the same name as the class it initializes.
 - constructors do not have a return type.
 - constructors cannot be declared =const=.
 - constructors may be defined inside the class or declared in-class and defined outside the class.
@@ -362,16 +390,20 @@ A constructor ensures member data of a new instantiation of a class object is se
       std::string fu;
       // code.
   };
-  // constructor definition.
+  // constructor definition one.
   foo::foo()
   {
     bar = 1;
       // code..
   }
-  // constructor definition.
+  // constructor definition two.
   foo::foo(const std::string name)
   {
     fu = name;
+  }
+
+  void func() {
+    foo obj;                      // calls constructor one.
   }
 #+end_src
 
@@ -401,6 +433,8 @@ Note:
 
 Note:
 - If a class has a member of =class= type, and that class does not have a default constructor, the compiler _cannot initialize_ that member.
+- default constructor will fail if you have non-initialized const or reference data members.
+
 
 *** Constructors with initialization lists
 Allows us to replace explicit statements setting member data with implicit initialization.
@@ -420,12 +454,13 @@ Allows us to replace explicit statements setting member data with implicit initi
 Note:
 - Using an initialization list, we avoid having to name the arguments something different from the member data variable names.
 - When a member is omitted from the constructor initializer list, it is implicitly initialized using the same process as used by the synthesized default constructor.
+
 ** Destructors
 Destructors delete objects. If a destructor is not supplied by the programmer, then the compiler supplies a basic one. However, the compiler-supplied destructor does an absolute minimum and is only sufficient for very basic classes that do no dynamic memory allocation.
 #+begin_src C++
   class foo {
     public:
-      ~foo();                     // destructor
+      ~foo() = default;                     // destructor
       // code.
   }
 #+end_src
