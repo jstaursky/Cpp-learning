@@ -6,7 +6,7 @@ Pointers are declarations of the form.
 #+end_src
 This assigns =foo= to the address of the variable =bar=;
 - To access the value of =bar=, you must make statements of the form =*foo=.
-=*= is the _indirection_ or _dereference_ operator which enables you to access the object the pointer points to. This becomes important in situations where you want a function to modify its arguments and use call by reference (albit references provide cleaner method of accomplishing this).
+=*= is the _indirection_ or _dereference_ operator which enables you to access the object the pointer points to. This becomes important in situations where you want a function to modify its arguments and use call by reference (albeit references provide cleaner method of accomplishing this).
 e.g.,
 #+begin_src C++
   void swap(int* x, int* y)
@@ -28,7 +28,9 @@ Using =const= with pointers can enable certain types of protections depending on
 #+end_src
 Provides the following type of protection.
 #+begin_quote
-Protects the integer being pointed to from being changed/modified.
+Protects the integer being pointed to from being changed/modified. \\
+Value of foo may be changed. \\
+Value of *foo cannot be changed.
 #+end_quote
 Note:
 - the integer being pointed to does not have to be declared =const=.
