@@ -509,6 +509,18 @@ Example
   }
 #+end_src
 
+**** Caveat
+A destructor is not run when a reference or a pointer to an object goes out of scope.
+
+#+begin_src C++
+  foo* bar = new foo();
+  // code ...
+  delete bar;                     // destructor is called after this 
+                                  // statement to release resources 
+                                  // inside bar.
+#+end_src
+
+
 *** Destructor examples
 #+begin_src C++
   class foo {
