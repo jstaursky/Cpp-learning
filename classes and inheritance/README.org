@@ -1,0 +1,439 @@
+* Classes
+A class is a collection of _class members_ which can be:
+- member variables (a.k.a. fields)
+- member functions (a.k.a. methods)
+- member types or typedefs (e.g. "nested classes")
+- member templates (of any kind: variable, function, class or alias template)
+
+Declaring a class creates a new type, and it becomes possible to instantiate objects of that class.
+Example,
+#+begin_src C++
+  class Vector {
+  public:
+    int x;
+    int y;
+    int z;
+  };
+  Vector myVector;
+  my_vector.x = 10;
+#+end_src
+
+** Access control and Encapsulation
+*** private specifier
+=Class= _default access specifier_ for members is _private_.
+We can also designate members access control explicitly.
+#+begin_src C++
+  class myClass {
+    private:
+      int foo;
+  };
+#+end_src
+Members defined after a _private_ specifier are:
+- _inaccessible_ to code defined outside the class. (i.e., code that uses the class for its functionality can only use what is defined in the classes interface).
+- _accessible_ to the member functions of the class.
+
+*** protected specifier
+Only the class itself, derived classes and friends have access.
+
+*** public specifier
+Everyone has access to class members.
+
+** Defining Member Functions
+Class member functions can be defined either inside or outside the class declaration.
+Note:
+- Inside a member function, we can refer directly to the members of the object on which the function was called (i.e., other members inside the class which the member function is apart of). We do not have to use the member access operator.
+
+*** In-class member function definitions
+When a class function is defined within the class, it is called an _inline function_.
+- Do this when the body of the function is small, otherwise just write the function prototype inside the class and define the function outside the class.
+  Example in-class member function definition.
+  #+begin_src C++
+    class foo {
+      private: 
+        int bar;
+      public:
+        void fu(int b) {
+          bar = b;
+        }
+    };
+  #+end_src
+  Note:
+  - You can _request_ the compiler to inline the function during compilation via the keyword =inline=.
+    e.g.,
+    #+begin_src C++
+      inline void fu(int b) {
+        bar = b;
+      }
+    #+end_src
+    This might make the compiler replace the function with an equivalent macro and thereby eliminate the overhead associated with calling a function.
+    
+*** member functions defined outside the class
+Class member functions defined outsided the class must:
+- Have the function prototype declared inside the class definition.
+- Define the functions implementation with the help of the _scope operator_.
+  #+begin_src C++
+    class foo {
+      private:
+        int bar;
+      public:
+        void fu(int b);             // Function prototype.
+    };
+
+    void foo::fu(int b) {
+      bar = b;
+    }
+  #+end_src
+  
+*** Const member functions
+Member functions of a class can be declared =const=, which tells the compiler that the function will not modify the object it is apart of.
+- In a const member function you cannot modify any member variables.
+Example
+#+begin_src C++
+  class foo {
+    private: 
+      int bar;
+    public:
+      int barValue() const { return bar; }
+      void fu(int var) { bar = var; }
+  }
+#+end_src
+So in this example =fu()= could not be declared as a const member function.
+
+** Constructors
+A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class. \\
+Note:
+- constructors have the same name as the class it initializes.
+- constructors do not have a return type.
+- constructors cannot be declared =const=.
+- constructors may be defined inside the class or declared in-class and defined outside the class.
+- constructors can be overloaded.
+#+begin_src C++
+  class foo {
+    public:
+    foo();                        // constructor declaration.
+    private:
+      int bar;
+      std::string fu;
+      // code.
+  };
+  // constructor definition one.
+  foo::foo()
+  {
+    bar = 1;
+      // code..
+  }
+  // constructor definition two.
+  foo::foo(const std::string name)
+  {
+    fu = name;
+  }
+
+  void func() {
+    foo obj;                      // calls constructor one.
+  }
+#+end_src
+
+*** Synthesized Default Constructor
+When we do not initialize a class using a constructor the members are default initialized by the _synthesized default constructor_ (fancy name for a compiler generated constructor).
+The default constructor initializes members by:
+1) Determining if there is an in-class initializer.
+   #+begin_src C++
+     class foo {
+       int bar = 0;                  // in-class initialization.
+     };
+   #+end_src
+2) Default initializing the member.
+   (unintialized local variables of built-in type are left undefined).
+   
+Note:
+- If we define any constructors, the class will not have a default constructor unless we define it ourselves.
+  Here is how to define the default constructor explicitly,
+  #+begin_src C++
+    class foo {
+    public:
+        foo() = default;
+    private:
+        int bar = 0;
+    };
+  #+end_src
+
+Note:
+- If a class has a member of =class= type, and that class does not have a default constructor, the compiler _cannot initialize_ that member.
+- default constructor will fail if you have non-initialized const or reference data members.
+
+
+*** Constructors with initialization lists
+Allows us to replace explicit statements setting member data with implicit initialization.
+#+begin_src C++
+  class foo {
+    public:
+    foo();                        // constructor declaration.
+    private:
+      int bar;
+      std::string fu;
+      // code.
+  };
+  // constructor definition w/ initialization list.
+  foo::foo(const std::string fu): fu (fu) { }
+
+#+end_src
+Note:
+- Using an initialization list, we avoid having to name the arguments something different from the member data variable names.
+- When a member is omitted from the constructor initializer list, it is implicitly initialized using the same process as used by the synthesized default constructor.
+
+** Destructors
+Destructors delete objects. If a destructor is not supplied by the programmer, then the compiler supplies a basic one. However, the compiler-supplied destructor does an absolute minimum and is only sufficient for very basic classes that do no dynamic memory allocation.
+#+begin_src C++
+  class foo {
+    public:
+      ~foo() = default;                     // destructor
+      // code.
+  }
+#+end_src
+  
+#+begin_quote
+A destructor is a member function that is automatically called when an object is destroyed.
+#+end_quote
+*Destructor Declaration rules*.
+1) Destructors are declared using the same name as the class along with a =~= prefix.
+2) Destructors take no parameters. They cannot be overloaded. There is always one and only one desctructor for a given class.
+3) Destructors have no return type.
+
+*** When is a Destructor called
+A destructor is used automatically whenever an object of its type is destroyed/deleted: i.e.,
+1) variables are destroyed when they go out of scope.
+2) Members of an object are destroyed when the object of which they are a part of is destroyed.
+3) Dynamically allocated objects are destroyed when the ~delete~ operator is applied to a pointer to the object.
+#+begin_quote
+Destructors are never called explicitly by the programmer. Calls to destructors are inserted automatically by the compiler.
+#+end_quote
+
+Example 
+#+begin_src C++
+  class Example {
+  public:
+      Example() = default;
+      Example(int count);
+      ~Example();
+      // A pointer to some memory
+      // that will be allocated.
+      float *values = nullptr ;
+  };
+
+  Example::Example(int count) {
+      // Allocate memory to store "count"
+      // floats.
+      values = new float[count];
+  }
+  Example::~Example() {
+      // The destructor must free this
+      // memory. Only do so if values is not
+      // null.
+      if (values) {
+          delete[] values ;
+      }
+  }
+#+end_src
+
+**** Caveats
+A destructor is not run when a reference or a pointer to an object goes out of scope.
+
+#+begin_src C++
+  foo* bar = new foo();
+  // code ...
+  delete bar;                     // destructor is called after this 
+                                  // statement to release resources 
+                                  // inside bar.
+#+end_src
+*** Virtual Destructors
+Destructors in a base class should be declared ~virtual~, this allows derived classes to override with their parents destructor when obj of their type is deleted.
+
+So really the example given earlier should instead look like
+#+begin_src C++
+  class Example {
+  public:
+      Example() = delete ;
+      Example(int count) ;
+      virtual ~Example() ;        // Best practice.
+      // A pointer to some memory
+      // that will be allocated.
+      float *values = nullptr ;
+  };
+
+  Example::Example(int count) {
+      // Allocate memory to store "count"
+      // floats.
+      values = new float[count];
+  }
+  Example::~Example() {
+      // The destructor must free this
+      // memory. Only do so if values is not
+      // null.
+      if (values) {
+      delete[] values ;
+      }
+  }
+#+end_src
+
+Virtual destructors are useful when you might potientially delete an instance of a derived class through a pointer to base class.
+#+begin_src C++
+class Base 
+{
+    // some virtual methods
+};
+
+class Derived : public Base
+{
+    ~Derived()
+    {
+        // Do some important cleanup
+    }
+};
+#+end_src
+Here, you'll notice that I _didn't declare Base's destructor to be =virtual=._ Now, let's have a look at the following snippet:
+#+begin_src C++
+  Base *b = new Derived();
+  // use b
+  delete b;                       // Here's the problem!
+#+end_src 
+Since Base's destructor is not =virtual= and =b= is a =Base*= pointing to a =Derived= object, =delete b= has *undefined behavior*.
+
+#+begin_quote
+[ in ~delete b~ ], if the static type of the object to be deleted is different from its dynamic type, the static type shall be a base class of the dynamic type of the object to be deleted and *the static type shall have a virtual destructor of the behavior is undefined*.
+#+end_quote
+
+
+*** Destructor examples
+#+begin_src C++
+  class foo {
+    int* bar;
+    public:
+      foo(): bar (new int[10]) {} // constructor
+      ~foo() { delete[] bar; }    // destructor
+  };
+
+  void f() {
+    foo* fu = new foo[2];         // calls default constructor x2
+    delete[] fu;                  // calls destructors on fu[0] & fu[1]
+  }
+#+end_src
+
+* Inheritance - derived classes
+If a class B inherits from class A, then A is B's parent & B is the child of A
+- We say that B is a _derived class_ from A.
+- We say that A is the _base class_.
+
+A derived class is defined as such:
+#+begin_src C++
+  class base {
+    // some code
+  };
+
+  class derived : base {
+    // some code
+  };
+#+end_src
+Note:
+- The default specifier of =class= is =private= and so any class that derives from the derived class will be unable to access the base classes members.
+- A base class must be _defined_, not just _declared_ before defining the derived class.
+
+*Summary*
+- use =private:= when you want members to be contained to that specific class
+- use =protected:= when you want to share across classes but not add to the class interface.
+- use =public:= when you want to create an interface.
+
+** 3 forms of inheritance
+Inheritance can be given certain constraints via access specifiers.
+#+begin_quote
+Under inheritance, the scope of a derived class is nested inside the scope of its base class(es).
+#+end_quote
+
+Suppose in the following we initially have the following base class,
+#+begin_src C++
+  class base {
+  public:
+    int p1;
+  protected:
+    int p2;
+  private:
+    int p3;
+  };
+#+end_src
+
+*** public inheritance
+#+begin_src C++
+  class derived : public base {   // public inheritance!!
+      void foo() {
+         p1 = 0;             // well formed, p1 is public in derived.
+         p2 = 0;             // well formed, p2 is protected in derived.
+         p3 = 0;             // WRONG! p3 is private in base.
+      }
+  };
+  derived bar;
+  bar.p1 = 1;                     // well formed, p1 is public.
+  bar.p2 = 1;                     // WRONG! p2 is protected.
+  bar.p3 = 1;                     // WRONG! p3 is inaccessible.
+#+end_src
+Under =public= inheritance,
+- _inherited members_ retain the same access control specification they had in the base class.
+  (because the scope of a derived class is nested inside the scope of its base class).
+- classes that derive from the derived class _will be able to access the same base class members as the derived class_.
+- =public= members of the base class become part of the interface of the derived class as well.
+
+*** private inheritance
+#+begin_src C++
+  class derived : private base {  // private inheritance!!
+      void foo() {
+         p1 = 0;             // well formed, p1 is private in derived.
+         p2 = 0;             // well formed, p2 is private in derived.
+         p3 = 0;             // WRONG! p3 is private in base.
+      }
+  };
+  derived bar;
+  bar.p1 = 1;                     // WRONG! p1 is private.
+  bar.p2 = 1;                     // WRONG! p2 is private.
+  bar.p3 = 1;                     // WRONG! p3 is inaccessible.
+#+end_src
+Under =private= inheritance,
+- _inherited members_ become private in derived class.
+- classes that derive from derived class _will not be able to access any members of the base_ class.
+
+*** protected inheritance
+Under =protected= inheritance,
+#+begin_src C++
+  class derived : protected base {  // protected inheritance!!
+      void foo() {
+         p1 = 0;             // well formed, p1 is protected in derived.
+         p2 = 0;             // well formed, p2 is protected in derived.
+         p3 = 0;             // WRONG! p3 is private in base.
+      }
+  };
+  derived bar;
+  bar.p1 = 1;                     // WRONG! p1 is protected.
+  bar.p2 = 1;                     // WRONG! p2 is protected.
+  bar.p3 = 1;                     // WRONG! p3 is inaccessible.
+#+end_src
+- _inherited members_ become protected in derived class.
+- classes that derive from derived class _will be able to access the same base class members as the derived_ class.
+
+* Friendship
+The =friend= keyword is used to _give other classes and functions access to private and protected members of the class_, even though they are defined outside the class's scope.
+#+begin_quote
+This is useful so you can leverage the abilities of other class's that aren't derived from your class's base class or when you want to add functions to an interface that are not apart your class's class.
+#+end_quote
+Note: Friends are not members of the class and are not affected by the access control of the section in which they are declared.
+
+This is how you use =friend=,
+#+begin_src C++
+  class myClass {
+    friend void foo();
+    private:
+      int bar = 0;
+  };
+  void foo(myClass fu) {
+    fu.bar++;
+  }
+
+#+end_src
+
+
