@@ -447,7 +447,7 @@ Rules:
    #+begin_center
    When we use a pointer (or reference) to a base-class type, we don't know the actual type of the object to which the pointer or reference is bound. That object could be an object of the base class or an object of a derived class.
    #+end_center
-   e.g., in the above =pB= is a pointer to a base-class type, and is bound to an object of the base class. In contrast, =pB1= and =pB2= are pointers to a base-class type, but are bound to objects of a derived class.
+   *e.g.*, In the above =pB= is a pointer to a base-class type, and is bound to an object of the base class. In contrast, =pB1= and =pB2= are pointers to a base-class type, but are bound to objects of a derived class.
 2) A type cast is required to perform the opposite assignment of a ase class pointer to a derived class pointer. e.g.,
    #+begin_src C++
      Derived *pD1 = static_cast<Derived *>(pB1);
@@ -460,10 +460,65 @@ Rules:
    #+begin_src C++
      cout << pD->bar;                // Error
    #+end_src
-   The error occurs because the =Base= class object pointed to by =pD= does not have a member =bar=.
+   The error occurs because the =Base= class object pointed to by =pD= does not have a member =bar=. \\
+   Note that we are able to perform this cast when we are dealing with pointers, An object of a derived class cannot be cast to an object of a base class.
+
+These type compatibility rules apply additionally in two other cases.
+- A function that is declared as taking a pointer to a base class will accept a pointer to a derived class object as an actual parameter.
+  #+begin_src C++
+    class Base { 
+    friend void foo(Base *);
+        // code..
+    };
+    class Derived : public Base {
+        // code..
+    };
+    void foo(Base *bar) {
+        // code..
+    }
+    int main() {
+      Derived *pDer = new Derived();
+      foo(pDer);                    // OK
+    }
+  #+end_src
+- A function that declares a return type of a pointer to a particualr class C may actually return a pointer to an object of a class derived from C.
 
 * Overriding a Method
-Methods in the base class are overridden in the derived class by providing a deried class method with the same signature.
+If a derived class defines the same method (name and param types) as the base class, that method gets overridden 
+#+begin_src C++
+  class Base {
+  public:
+      void m1() { std::cout << "Base m1" << std::endl; }
+  };
+  class Derived : public Base {
+  public:
+      void m1() { std::cout << "Derived m1" << std::endl; }
+  };
+#+end_src
+This piece of code will call =Derived='s =m1()=
+#+begin_src C++
+  Derived *bar = new Derived();
+  bar->m1();                  // prints "Derived m1
+#+end_src
+However, this piece of code will call =Base='s =m1()=
+#+begin_src C++
+  Base *foo = new Derived();
+  foo->m1();                  // prints "Base m1"
+#+end_src
+Why is this the case? It is because a non-virtual method-call is resolved at compile time using the static type of the expression.
+- =Static Binding=: the compiler uses the type of the pointer to perform the binding at compile time.
+- Static binding chooses the function in the class of the base class pointer, ignoring any versions in the class of the object actually pointed to
+
+What if you wanted this 2nd case to also call =Derived='s =m1()= This requires the use of =virtual=.
+- Use of =virtual= is called =Dynamic Binding=: the decision is made at run-time based upon the type of the actual object.
+
+** Static vs Dynamic Binding
+- Static Binding
+  - Use when you are sure that any subsequent derived classes will not want to override this operation dynamically (just redefine/hide)
+  - Use mostly for reuse or to form “concrete data types”
+- Dynamic Binding
+  - Use when the derived classes may be able to provide a different (e.g., more functional, more efficient) implementation that should be selected at run-time
+  - Used to build dynamic type hierarchies & to form “abstract data types”
 
 ** Partial overriding
 Sometimes a derived class method wants to invoke the base class method. We want to do what the base class does, plus a little more, rather than doing something entirely different.
@@ -471,20 +526,68 @@ Calls to a base class method can be accomplished by using the scope operator.
 
 Example:
 #+begin_src C++
-  class Workaholic : public Worker {
+  class Derived : public Base {
   public:
-      void doWork()
+      void foo()
       {
-          Worker::dowork();
-          drinkCoffee();
-          Worker::doWork();
+          Base::bar();
+          // code specific to Derived.
       }
+  };
+#+end_src
+
+* Virtual overriding
+- Virtual functions:: methods where the implementation may change in subsequent derived classes.
+=virtual= enables dynamic binding. The dynamic type of an object is the type of the object in memory that the variable or expression represents.
+#+begin_src C++
+  class Base {
+  public:
+    virtual void msg() {
+      std::cout << "Base msg" << std::endl; }
+  };
+  class Derived : public Base {
+  public:
+    void msg() override { std::cout << "Derived msg" << std::endl; }
+  };
+  int main() {
+    Base *foo = new Derived();
+    foo->msg();                   // Displays Derived msg
   }
 #+end_src
 
+#+begin_quote
+the compiler chooses the appropriate definition of f(), not by the type of reference, but by the type of object that the reference refers to. 
+#+end_quote
 
-** Static Type Binding
-In static binding, the decision on which function to use to resolve an overload is made at compile time.
+- The virtual function specification tells the compiler to create a pointer to a function f(), but to not fill in the value of the pointer until the function is actually called.
+- Declaring a function virtual will make the compiler check the type of each object to see if it defines a more specific version of the virtual function;
+
+** Syntax of Virtual Functions
+- Specifying the keyword virtual for any base class member function enables dynamic binding for that function.
+- Any derived class can override that function by defining a function with the same signature and return type.
+- The keyword virtual does not need to be re-specified within the derived class.
+- Once a member function is declared to be virtual in a base class, all functions with that name, signature, and return type in any derived class remain virtual and can be overridden.
+
+** Rules of Dynamic Binding
+1) Virtual functions cannot be static member functions.
+2) The signature and return type must be the same for all implementations of the virtual function.
+3) While the function must be defined as a virtual function within a direct or indirect base class, it need not be defined in those derived classes where the inherited behavior does not need to differ.
+4) And finally, the keyword virtual is only required within the base class itself; derived class implementations of the overridden function do not need to repeat the use of that keyword.
+5) Once a member function is declared to be virtual, it remains virtual for all derived classes.
+
+** Abstract class / pure virtual functions
+It is possible for a base class method to be pure virtual. This means that the method is not even defined in the base class.
+#+begin_src C++
+virtual void display() const = 0;
+#+end_src
+*Any class with a pure virtual function is called an abstract class*. The method must be implemented in a derived class for it to be a concrete class. Otherwise, the derived class will also be an abstract class.
+*You can never instantiate an abstract class* (even if you don’t use the virtual functions), but you can have pointers to it.
+
+* Overriding vs. Overloading
+There are two major differences between overloading and overriding.
+- Overloading requires unique signatures whereas overriding requires the same signature and return type.
+- Second, overloading requires that each overloaded version of the function be specified within the same scope whereas overriding requires each overridden version be specified within the scope of each derived class.
+
 * Friendship
 The =friend= keyword is used to _give other classes and functions access to private and protected members of the class_, even though they are defined outside the class's scope.
 #+begin_quote
@@ -502,7 +605,6 @@ This is how you use =friend=,
   void foo(myClass fu) {
     fu.bar++;
   }
-
 #+end_src
 
 
