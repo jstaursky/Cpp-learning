@@ -302,6 +302,7 @@ Since Base's destructor is not =virtual= and =b= is a =Base*= pointing to a =Der
 [ in ~delete b~ ], if the static type of the object to be deleted is different from its dynamic type, the static type shall be a base class of the dynamic type of the object to be deleted and *the static type shall have a virtual destructor of the behavior is undefined*.
 #+end_quote
 
+Always make base classes' destructors virtual when they're meant to be manipulated polymorphically.
 
 *** Destructor examples
 #+begin_src C++
@@ -336,12 +337,15 @@ A derived class is defined as such:
 Note:
 - The default specifier of =class= is =private= and so any class that derives from the derived class will be unable to access the base classes members.
 - A base class must be _defined_, not just _declared_ before defining the derived class.
-
-*Summary*
 - use =private:= when you want members to be contained to that specific class
 - use =protected:= when you want to share across classes but not add to the class interface.
 - use =public:= when you want to create an interface.
 
+A derived class:
+- *inherits* the behavior of the base class
+- *Overrides* some of the base class member functions (opt.)
+- *Extends* the base class with new member functions, variables (opt.)
+  
 ** 3 forms of inheritance
 Inheritance can be given certain constraints via access specifiers.
 #+begin_quote
@@ -416,6 +420,70 @@ Under =protected= inheritance,
 - _inherited members_ become protected in derived class.
 - classes that derive from derived class _will be able to access the same base class members as the derived_ class.
 
+** Type Compatibility in Inheritance
+Objects in an inheritance hierarchy are commonly accessed through pointers.
+Rules:
+1) A derived class pointer can always be assigned to a base class pointer.
+   #+begin_src C++
+     class Base {
+     public: 
+       int foo;
+       Base(int foo) : foo (foo) { }
+     }; 
+     class Derived : public Base {
+     public:
+       double bar;
+       Derived(int foo, double bar) : Base(foo), bar(bar) { }
+     };
+     Base *pB = new Base(5);
+     Derived *pD = new Derived(6, 10.5);
+   #+end_src
+   (1) says we can assign derived class pointers to base class pointers and therefore write:
+   #+begin_src C++
+     Base *pB1 = pD;
+     Base *pB2 = new Derived(7, 11.5);
+   #+end_src
+   The ability to bind a pointer (or reference) to a base-class type to a derived object has an important consequence. \\
+   #+begin_center
+   When we use a pointer (or reference) to a base-class type, we don't know the actual type of the object to which the pointer or reference is bound. That object could be an object of the base class or an object of a derived class.
+   #+end_center
+2) A type cast is required to perform the opposite assignment of a ase class pointer to a derived class pointer. e.g.,
+   #+begin_src C++
+     Derived *pD1 = static_cast<Derived *>(pB1);
+   #+end_src
+   An error may result at *run time* however if the base class pointer does not actually point to a derived class object. e.g.,
+   #+begin_src C++
+     pD = static_cast<Derived *>pB;
+   #+end_src
+   This statement will compile, but when it is executed, it leaves a =Derived= class pointer pointing to a =Base= class object. A subsequent access to =Derived= class members through =pD= will cause a runtime error.
+   #+begin_src C++
+     cout << pD->bar;                // Error
+   #+end_src
+   The error occurs because the =Base= class object pointed to by =pD= does not have a member =bar=.
+
+* Overriding a Method
+Methods in the base class are overridden in the derived class by providing a deried class method with the same signature.
+
+** Partial overriding
+Sometimes a derived class method wants to invoke the base class method. We want to do what the base class does, plus a little more, rather than doing something entirely different.
+Calls to a base class method can be accomplished by using the scope operator.
+
+Example:
+#+begin_src C++
+  class Workaholic : public Worker {
+  public:
+      void doWork()
+      {
+          Worker::dowork();
+          drinkCoffee();
+          Worker::doWork();
+      }
+  }
+#+end_src
+
+
+** Static Type Binding
+In static binding, the decision on which function to use to resolve an overload is made at compile time.
 * Friendship
 The =friend= keyword is used to _give other classes and functions access to private and protected members of the class_, even though they are defined outside the class's scope.
 #+begin_quote
