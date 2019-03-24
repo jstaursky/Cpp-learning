@@ -447,6 +447,7 @@ Rules:
    #+begin_center
    When we use a pointer (or reference) to a base-class type, we don't know the actual type of the object to which the pointer or reference is bound. That object could be an object of the base class or an object of a derived class.
    #+end_center
+   e.g., in the above =pB= is a pointer to a base-class type, and is bound to an object of the base class. In contrast, =pB1= and =pB2= are pointers to a base-class type, but are bound to objects of a derived class.
 2) A type cast is required to perform the opposite assignment of a ase class pointer to a derived class pointer. e.g.,
    #+begin_src C++
      Derived *pD1 = static_cast<Derived *>(pB1);
