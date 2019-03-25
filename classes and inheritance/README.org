@@ -542,14 +542,14 @@ Example:
 #+begin_src C++
   class Base {
   public:
-    virtual void msg() {
-      std::cout << "Base msg" << std::endl; }
+    virtual void msg() { std::cout << "Base msg" << std::endl; }
   };
   class Derived : public Base {
   public:
     void msg() override { std::cout << "Derived msg" << std::endl; }
   };
-  int main() {
+  int main() 
+  {
     Base *foo = new Derived();
     foo->msg();                   // Displays Derived msg
   }
@@ -582,6 +582,8 @@ virtual void display() const = 0;
 #+end_src
 *Any class with a pure virtual function is called an abstract class*. The method must be implemented in a derived class for it to be a concrete class. Otherwise, the derived class will also be an abstract class.
 *You can never instantiate an abstract class* (even if you don’t use the virtual functions), but you can have pointers to it.
+
+- Purpose:: it may be convienient to have a base class for an inheritance hierarchy that defines a member function that must be implemented in every derived class, but which cannot be implemented by the base class itself because the details needed for a reasonable implementation can only be found in the derived classes.
 
 * Overriding vs. Overloading
 There are two major differences between overloading and overriding.
