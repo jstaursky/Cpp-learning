@@ -18,6 +18,36 @@ Example,
   my_vector.x = 10;
 #+end_src
 
+** Static Members
+- If a member variable is declared =static=, all objects of that class have access to that variable.
+#+begin_src C++
+  class foo {
+  private:
+      static int bar;
+  public:
+      // It is considered good practice to declare methods that do not
+      // access any nonstatic members of their class to be made static.
+      static void set_bar(int b) { bar = b; }
+  };
+
+  int foo::bar;                   // cannot be declared inside main.
+#+end_src
+Note that a separate definition of the variable must be placed outside the class, otherwise we will get compiler error stating:
+#+begin_src text
+undefined reference to foo::bar in function foo::set_bar.
+#+end_src
+
+#+begin_quote
+static members are associated with the class rather than with individual objects of the class type.
+#+end_quote
+The static members of a class exist outside any object.
+- static members cannot be initialized by the class constructor.
+- cannot initialize a static member inside the class.
+
+
+- If a member function is declared =static=, it may be called before any instances of the class are defined.
+- If we define a static member outside the class, we do not repeat the =static= keyword.
+
 ** Access control and Encapsulation
 *** private specifier
 =Class= _default access specifier_ for members is _private_.
@@ -304,6 +334,20 @@ Since Base's destructor is not =virtual= and =b= is a =Base*= pointing to a =Der
 
 Always make base classes' destructors virtual when they're meant to be manipulated polymorphically.
 
+#+begin_quote
+Virtual Destructors are needed if a base pointer pointing to a derived object is to be deleted.
+#+end_quote
+
+#+begin_src C++
+  class Base {
+    public:
+    virtual ~Base() = default;    // dynamic binding for the destructor.
+  };
+#+end_src
+So long as the base class destructor is virtual, when we =delete= a pointer to base, the correct destructor will be run.
+
+
+
 *** Destructor examples
 #+begin_src C++
   class foo {
@@ -318,6 +362,157 @@ Always make base classes' destructors virtual when they're meant to be manipulat
     delete[] fu;                  // calls destructors on fu[0] & fu[1]
   }
 #+end_src
+
+
+* Classes - copy, move constructor - copy, move assignment operators
+If a class does not define all these members, the compiler automatically defines the missing operations.
+
+** Copy and Move constructors
+The copy and move constructors define what happens when an object is *initialized* from another object of the same type.
+
+*** Copy Constructor
+*A copy constructor is a special constructor that is called whenever a new object is created and initialized with the data of another object of the same class*.
+
+A constructor is a copy constructor if its first parameter is a reference to the class type and any additional parameters have default values.
+#+begin_src C++
+  class foo {
+  public:
+    foo();                        // default constructor
+    foo(const foo&);              // copy constructor
+  };
+#+end_src
+- The first parameter to a copy constructor *must* be a reference type.
+- The reference must be a reference to the _same_ class.
+
+If you do not define a copy constructor, the synthesized default copy constructor is defined by the compiler. The synthesized copy constructor acts in the following mannor:
+- constructor memberwise copies the members of its argument into the object being created.
+This can prove problematic if for instance the class has a pointer data member. For then the default copy constructor will copy the same address into the other class instance and leave both pointers /pointing to the same data/. Thus when one of the objects changes its data through its pointer, it affects the other object as well.
+
+Here is an implementation of a copy constructor that avoids the difficulties present in the default copy constructor.
+#+begin_src C++
+  #include <iostream>
+  class Foo {
+  private:
+      int *ptrArr;
+      int size;
+
+  public:
+      Foo(int size) : size(size) {
+          ptrArr = new int[size];
+          initArr();
+      }
+      Foo(Foo const &foo, int size) : size(size) {
+          ptrArr = new int[size];
+          initArr();
+      }
+      ~Foo();                     // Really should define our own since
+                                  // 'new' is being used.
+      void initArr();
+      void updateArr(int newsize) {
+          delete[] ptrArr;
+          size = newsize;
+          ptrArr = new int[size];
+          initArr();
+      }
+      void printArr() {
+          for (int i = 0; i < size; ++i) {
+              std::cout << ptrArr[i] << std::endl;
+          }
+      }
+  };
+  void Foo::initArr() {
+      for (int idx = 0; idx < size; idx++)
+          ptrArr[idx] = idx;
+  }
+
+  int main(int argc, char *argv[]) {
+      // Direct Initialization - uses Default Constructor
+      Foo bar(5);
+      // Copy initialization - uses Copy Constructor
+      Foo boo = bar;
+      bar.printArr();
+      std::cout << std::endl;
+      boo.updateArr(6);
+      boo.printArr();
+      return 0;
+  }
+#+end_src
+
+Copy Initialiation happens not only when using ===, but also when:
+- Passing an object as an arguement to a parameter of nonreference type.
+- Return an object from a function that has a nonreference return type.
+
+*** Move Constructor
+A move constructor "steals" resources from a given object rather than copying them.
+- Like the copy constructor the move constructor has an initial parameter that is a reference to the class type. But in the move constructor the reference parameter is an *rvalue reference*.
+
+Copy and move constructors are distinguished by their prototypes.
+#+begin_src C++
+  class foo {
+      //! Default constructor
+      foo();
+
+      //! Copy constructor
+      foo(const foo &other);
+
+      //! Move constructor
+      foo(foo &&other) noexcept;
+  };
+#+end_src
+
+
+**** Rvalue References and move semantics
+- An rvalue reference to a type =T= is written =T&&=.
+
+- Intuitively, an rvalue reference is a reference to a temporary.
+
+rvalue references have the property that, we can bind an rvalue reference to an rvalue but cannot bind an rvalue reference to an lvalue.
+#+begin_src C++
+  int i = 45;
+  int &r = i;                     // OK, r refers to i
+
+  int &&rr = i;                   // Error: cannot bind an rvalue 
+                                  // reference to an lvalue.
+
+  int &r2 = i * 42;               // Error: i * 42 is an rvalue
+
+  int const &r3 = i * 42;         // OK, we can bind a reference
+                                  // to const to an rvalue.
+
+  int &&rr2 = i * 42;             // OK, bind rr2 to the result of the
+                                  // multiplication.
+#+end_src
+
+#+begin_quote
+rvalue references refer to objects that are about to be destroyed.
+#+end_quote
+
+Note that rvalue reference variables are lvalue expressions!
+#+begin_src C++
+  void f(int& x) { std::cout << "int&\n"; }
+  void f(const int& x) { std::cout << "const int&\n"; }
+  void f(int&& x) { std::cout << "int&&\n"; }
+
+  int i = 1;
+  const int ci = 2;
+  f(i);                           // calls f(int&
+  f(ci);                          // calls f(const int&)
+  f(3);                           // calls f(int&&)
+                                  // would call f(const int&) if 
+                                  // f(int&&) didn't exist
+
+  f(std::move(i));                // calls f(int&&)
+
+  int&& x = 1;
+  f(x);                           // calls f(int& x)
+  f(std::move(x));                // calls f(int&& x)
+#+end_src
+
+rvalue reference will let you bind a mutable reference to an rvalue, but not an lvalue. 
+
+
+** Copy and Move assignment operators
+The copy and move assignment operators define what happens when we *assign* an object of a class type to another object of that same class type.
 
 * Inheritance - derived classes
 If a class B inherits from class A, then A is B's parent & B is the child of A
@@ -583,12 +778,15 @@ virtual void display() const = 0;
 *Any class with a pure virtual function is called an abstract class*. The method must be implemented in a derived class for it to be a concrete class. Otherwise, the derived class will also be an abstract class.
 *You can never instantiate an abstract class* (even if you don’t use the virtual functions), but you can have pointers to it.
 
-- Purpose:: it may be convienient to have a base class for an inheritance hierarchy that defines a member function that must be implemented in every derived class, but which cannot be implemented by the base class itself because the details needed for a reasonable implementation can only be found in the derived classes.
+- Purpose: it may be convienient to have a base class for an inheritance hierarchy that defines a member function that must be implemented in every derived class, but which cannot be implemented by the base class itself because the details needed for a reasonable implementation can only be found in the derived classes.
 
 * Overriding vs. Overloading
 There are two major differences between overloading and overriding.
 - Overloading requires unique signatures whereas overriding requires the same signature and return type.
 - Second, overloading requires that each overloaded version of the function be specified within the same scope whereas overriding requires each overridden version be specified within the scope of each derived class.
+
+* TODO Multiple Inheritance
+* TODO Virtual Inheritance
 
 * Friendship
 The =friend= keyword is used to _give other classes and functions access to private and protected members of the class_, even though they are defined outside the class's scope.
