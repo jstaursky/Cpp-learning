@@ -4,3 +4,75 @@
 Function templates provide a functional behavior that can be called for different types. Alt. function templates represent a family of functions.
 
 i.e., Rather than defining a new function for each type, we can define a _function template_.
+
+Templates are...
+- A function or class that accepts a type as a parameter
+  - You define the function or class once in a type-agnostic way
+  - When you invoke the function or instantiate the class, you specify (one or more) types or values as arguments to it
+- At compile-time, the compiler will generate the “specialized” code from your template using the types you provided.
+  • Your template definition is NOT runnable code
+  • Code is only generated if you use your template
+
+** Function Templates  
+Template to compare two “things”:
+#+begin_src C++
+  #include <iostream>
+  #include <string>
+  // returns 0 if equal, 1 if value1 is bigger, -1 otherwise
+  template <typename T> // <...> can also be written <class T>
+  int compare(const T &value1, const T &value2) {
+      if (value1 < value2) return -1;
+      if (value2 < value1) return 1;
+      return 0;
+  }
+  int main(int argc, char **argv) {
+      std::string h("hello"), w("world");
+      std::cout << compare<int>(10, 20) << std::endl;
+      std::cout << compare<std::string>(h, w) << std::endl;
+      std::cout << compare<double>(50.5, 50.6) << std::endl;
+      return 0;
+  }
+#+end_src
+** Compiler Inference
+Same thing, but letting the compiler infer the types:
+#+begin_src C++
+  #include <iostream>
+  #include <string>
+  // returns 0 if equal, 1 if value1 is bigger, -1 otherwise
+  template <typename T>
+  int compare(const T &value1, const T &value2) {
+      if (value1 < value2) return -1;
+      if (value2 < value1) return 1;
+      return 0;
+  }
+  int main(int argc, char **argv) {
+      std::string h("hello"), w("world");
+      std::cout << compare(10, 20) << std::endl; // ok
+      std::cout << compare(h, w) << std::endl; // ok
+      std::cout << compare("Hello", "World") << std::endl; // hm…
+      return 0;
+  }
+#+end_src
+** Template Non-types
+You can use non-types (constant values) in a template:
+#+begin_src C++
+  #include <iostream>
+  #include <string>
+  // prints a value out N times
+  template <typename T, int N>
+  int printmultiple(const T &value1) {
+      for (int i = 0; i < N; ++i) {
+          std::cout << value1 << std::endl;
+      }
+  }
+  int main(int argc, char **argv) {
+      std::string h("hello");
+      printmultiple<std::string, 3>(h);
+      printmultiple<const char *, 4>("hi");
+      printmultiple<int, 5>(10);
+      return 0;
+  }
+#+end_src
+
+
+* Keyword typename
