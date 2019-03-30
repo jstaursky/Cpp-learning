@@ -12,19 +12,19 @@ Some examples
   // lvalues:
   //
   int i = 42;
-  i = 43; // ok, i is an lvalue
-  int* p = &i; // ok, i is an lvalue
+  i = 43;           // ok, i is an lvalue
+  int* p = &i;      // ok, i is an lvalue
   int& foo();
-  foo() = 42; // ok, foo() is an lvalue
+  foo() = 42;       // ok, foo() is an lvalue
   int* p1 = &foo(); // ok, foo() is an lvalue
 
   // rvalues:
   //
   int foobar();
   int j = 0;
-  j = foobar(); // ok, foobar() is an rvalue
+  j = foobar();        // ok, foobar() is an rvalue
   int* p2 = &foobar(); // error, cannot take the address of an rvalue
-  j = 42; // ok, 42 is an rvalue
+  j = 42;              // ok, 42 is an rvalue
 #+end_src
 [[http://thbecker.net/articles/rvalue_references/section_01.htmlexternal_link][ reference]]
 
@@ -117,6 +117,82 @@ The pointer cannot point to another variable once initialized, and the value of 
 #+end_quote
 Note:
 - A constant pointer to a constant must be initialized when declared.
+
+** Smart Pointers
+- Useful for dynamic memory applications.
+- Acts like a regular pointer, with the important exception that it automatically deletes the object to which it points.
+*** shared_ptr
+Allows multiple pointers to refer to the same object.
+- Is a template.
+#+begin_src C++
+  shared_ptr<string> p1;          // shared_ptr that can point to a string
+  shared_ptr<list<int>> p2;       // p2 can point at a list of ints.
+#+end_src
+
+- Has an associated counter which tracks the number of shared_ptrs refering to the same object.
+  NOTE: the reference count is incremented when:
+  - we copy a =shared_ptr=.
+    e.g.,
+    #+begin_src C++
+      shared_ptr<T> p = q;    // when initializing another shared_ptr.
+      r = q;  // when used as the right-hand operand of an assignment.
+    #+end_src
+  - Also when we pass it to or return from a function by value.
+  NOTE: the reference count is decremented when:
+  - we assign a new value to the =shared_ptr=.
+  - when the =shared_ptr= itself is destroyed, like when a local =shared_ptr= goes out of scope.
+
+#+begin_quote
+Once a =shared_ptr= counter goes to zero, the =shared_ptr= automatically frees the object that it manages.
+#+end_quote
+
+#+begin_src C++
+  auto r = make_shared<int>(42);  // int to which r points has one ref.
+  r = q;         // assign to r, making it point to a different address
+                 // Effects:
+                 // (1) Increases the use count for the object to which q
+                 //     points.
+                 // (2) Reduces the use count of the object to which r
+                 //     had pointed to.
+                 // (3) The object r had pointed to has no users;
+                 //     that object is automatically freed.
+#+end_src
+
+#+begin_quote
+=shared_ptr= ensures that so long as there are any shared_ptrs attached to the memory, the memory itself will not be freed.
+#+end_quote
+
+**** operations common to shared_ptr and unique_ptr
+1) =shared_ptr<T> sp= 
+   =unique_ptr<T> up= 
+   Null smart pointer that can point to objects of type =T=.
+2) =p=
+   Use p as a condition; =true= if p points to an object.
+3) =*p= 
+   Dereference p to get the object to which p points.
+4) =p->member=
+   Synonym for (*p).member
+5) =p.get()=
+   Returns the pointer in p. Use with caution; the object to which the returned pointer points will disappear when the smart pointer deletes it.
+6) =swap(p,q)= (alt. =p.swap(q)=)
+   Swaps the pointers in p and q.
+
+
+**** Operations Specific to shared_ptr
+1) =make_shared<T>(args)= 
+   Returns a shared_ptr pointing to a dynamically allocated object of type T. Uses ~args~ to initialize that object.
+2) =shared_ptr<T>p(q)= 
+   p is a copy of the shared_prt q; increments the count in q. The pointer in q must be convertable to ~T*~.
+3) =p = q= 
+   p and q are shared_ptr's holding pointers that can be converted to one another. Decrements p's reference count and increments q's count; delets p's existing memory if p's count goes to 0.
+4) =p.unique()=
+   Returns =true= if =p.use_count()= is one; =false= otherwise.
+5) =p.use_count()=   
+   Returns the number of objects sharing with p; may be a slow operation, intended primarily for debugging purposes.
+
+
+*** unique_ptr
+"owns" the object to which it points.
 
 * Reference types
 Like a pointer, a reference is an alias for an object (or variable), is usually implemented to hold a machine address of an object (or variable), and does not impose performance overhead compared to pointers.
