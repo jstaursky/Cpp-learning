@@ -390,52 +390,61 @@ This can prove problematic if for instance the class has a pointer data member. 
 
 Here is an implementation of a copy constructor that avoids the difficulties present in the default copy constructor.
 #+begin_src C++
-  #include <iostream>
-  class Foo {
-  private:
-      int *ptrArr;
-      int size;
+    #include <iostream>
+    class Foo {
+    private:
+        int *ptrArr;
+        int size;
 
-  public:
-      Foo(int size) : size(size) {
-          ptrArr = new int[size];
-          initArr();
-      }
-      Foo(Foo const &foo, int size) : size(size) {
-          ptrArr = new int[size];
-          initArr();
-      }
-      ~Foo();                     // Really should define our own since
-                                  // 'new' is being used.
-      void initArr();
-      void updateArr(int newsize) {
-          delete[] ptrArr;
-          size = newsize;
-          ptrArr = new int[size];
-          initArr();
-      }
-      void printArr() {
-          for (int i = 0; i < size; ++i) {
-              std::cout << ptrArr[i] << std::endl;
-          }
-      }
-  };
-  void Foo::initArr() {
-      for (int idx = 0; idx < size; idx++)
-          ptrArr[idx] = idx;
-  }
+    public:
+        Foo(int size = 1) : size(size)
+        {
+            ptrArr = new int[size];
+            initArr();
+        }
+        // Copy constructor
+        Foo(Foo const &foo)
+        {
+            this->size = foo.size;
+            ptrArr = new int[this->size];
+            initArr();
+        }
+        ~Foo() = default; // Really should define our own since
+                          // 'new' is being used.
+        void initArr() {
+            for (int idx = 0; idx < size; idx++)
+                ptrArr[idx] = idx;
+        }
+        void updateArr(int newsize) {
+            delete[] ptrArr;
+            size = newsize;
+            ptrArr = new int[size];
+            initArr();
+        }
+        void printArr() {
+            for (int i = 0; i < size; ++i) {
+                std::cout << ptrArr[i] << std::endl;
+            }
+        }
+    };
 
-  int main(int argc, char *argv[]) {
-      // Direct Initialization - uses Default Constructor
-      Foo bar(5);
-      // Copy initialization - uses Copy Constructor
-      Foo boo = bar;
-      bar.printArr();
-      std::cout << std::endl;
-      boo.updateArr(6);
-      boo.printArr();
-      return 0;
-  }
+    int main(int argc, char *argv[])
+    {
+        // Direct Initialization - uses Default Constructor
+        Foo bar(5);
+        // Copy initialization - uses Copy Constructor
+        Foo boo = bar;
+        bar.printArr();
+        std::cout << std::endl;
+        boo.printArr();
+        std::cout << std::endl;
+        boo.updateArr(6);
+        boo.printArr();
+        std::cout << std::endl;
+        bar.printArr();
+        return 0;
+    }
+
 #+end_src
 
 Copy Initialiation happens not only when using ===, but also when:
@@ -807,4 +816,178 @@ This is how you use =friend=,
   }
 #+end_src
 
+* Operator Overloading
+#+begin_quote
+C++ allows you to redefine how the standard operators work when used with class objects.
+#+end_quote
+This is done by creating functions with special names as members of the class for which you wish to modify the operator behavior for. This is done as follows:
+#+begin_quote
+The keyword ~operator~ followed by the symbol for the operator being defined.
+#+end_quote
+Note that like any other function, an overloaded operator has a return type, a parameter list, and a body.
 
+*NOTE* \\
+1. _An overloaded operator function has the same number of parameters as the operator has operands_. (when not a class member; overloaded operators that are class functions have 1 less parameters in their definition).
+2. For operator member functions, =this= is bound to the left-hand operand.
+   That is, since an operator function is an instance of a class, it can only be called through an object of the class. The object of the class through which it is called is considered the left operand of the operation statement and the right operand is the parameter being passed to the operator function.
+3. An operator function must either be a member of a class or have at least one parameter of class type. \\
+   e.g.,
+   #+begin_src C++
+   // error: cannot redefine the built-in operator for ints
+   int operator+(int, int);
+   #+end_src
+
+5. (+,-,*,&) can be both unary and binary operators. Either or both of these operators can be overloaded. The number of parameters determines which operator is being defined.
+6. An overloaded operator has the same precedence and associativity as the corresponding built-in operator.
+
+
+ 
+** = Operator Overloading
+*** Memberwise copying strikes again! Copy constructor won't help here.
+C++ allows the assignment operator to be used with class objects.
+#+begin_src C++
+  #include <iostream>
+
+  class Foo {
+  public:
+      Foo(int *bar) : bar(bar) {}
+      int *bar;
+  };
+
+  int main(int argc, char *argv[])
+  {
+      int numberOne = 10;
+      int numberTwo = 20;
+      Foo instanceONE(&numberOne);
+      Foo instanceTWO(&numberTwo);
+    
+      std::cout << "*instanceONE.bar is " << *instanceONE.bar << std::endl;
+      std::cout << "*instanceTWO.bar is " << *instanceTWO.bar << std::endl;
+
+      instanceTWO = instanceONE;
+      std::cout << "*instanceTWO.bar is " << *instanceTWO.bar << std::endl;
+
+      return 0;
+  }
+#+end_src
+
+Note in particular the line.
+#+begin_src C++
+  instanceTWO = instanceONE;
+#+end_src
+
+- This sets =instanceTWO= to exactly the same value as =instanceONE=. So memberwise copy occurs and =instanceTWO.bar= ends up pointing to the same memory as =instanceONE.bar=.
+- Note that this creates the _same issue that was present with copy constructors_. That is, since =instanceONE.bar= and =instanceTWO.bar= point to the same memory; modifying either =instanceONE.bar= or =instanceTWO.bar= will have the unintended sideeffect of modifying the other.
+
+Copy constructors are called only when an object is being initialized during its definition.
+ 
+Example
+ #+begin_src C++
+Foo r(p);        // copy constructor is used to build r.
+Foo p = q;       // copy constructor is used to initialize in declaration.
+ #+end_src
+
+ #+begin_quote
+ Copy constructors are not called in an *assignment statement*
+ #+end_quote
+e.g., a statement such as
+#+begin_src C++
+  foo One(5), Two(6);
+  Two = One;                      // Copy ctor not called.
+#+end_src
+
+To fix the problems memberwise copying incurs for classes with pointer variables it becomes necessary to /overload/ the assignment operator.
+
+** = Overloading
+To provide another version of the assignment operator capable of handeling the same nuances the copy constructor addressed, we define an _operator function_, called ~operator=~ as a member function of the class.
+
+*** operator= function
+Here is the previous example with the addition of the assignment operator overloaded.
+#+begin_src C++
+#include <iostream>
+class Sequence {
+private:
+	int *sequence;
+	int length;
+
+public:
+	// Default Constructor
+	Sequence(int length = 1) : length(length)
+	{
+		sequence = new int[length];
+		initseq();
+	}
+	// Copy Constructor
+	Sequence(Sequence const &seq)
+	{
+		this->length = seq.length;
+		sequence = new int[this->length];
+		initseq();
+	}
+	// Destructor
+	virtual ~Sequence()
+	{
+		if (sequence) {
+			delete[] sequence;
+		}
+	}
+	// Copy assignment operator
+	Sequence &operator=(Sequence const &other)
+	{
+		if (other.sequence) {
+			delete[] this->sequence;
+			this->length = other.length;
+			this->sequence = new int[length];
+			for (int i = 0; i < length; ++i) {
+				this->sequence[i] = other.sequence[i];
+			}
+		}
+		return *this;
+	}
+
+	void initseq();
+	void updateseq(int);
+	void printseq();
+};
+
+void Sequence::initseq()
+{
+	for (int idx = 0; idx < length; idx++)
+		sequence[idx] = idx;
+}
+void Sequence::updateseq(int newsize)
+{
+	delete[] this->sequence;
+	this->length = newsize;
+	this->sequence = new int[length];
+	initseq();
+}
+void Sequence::printseq()
+{
+	for (int i = 0; i < length; ++i) {
+		std::cout << sequence[i] << std::endl;
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	// Direct Initialization - uses Default Constructor
+	Sequence bar(5);
+	// Copy initialization - uses Copy Constructor
+	Sequence boo = bar;
+	std::cout << "printing bar" << std::endl;
+	bar.printseq();
+	std::cout << "\nprinting boo" << std::endl;
+	boo.printseq();
+	boo.updateseq(6);
+	std::cout << "\nprinting boo" << std::endl;
+	boo.printseq();
+	std::cout << "\nprinting bar" << std::endl;
+	bar.printseq();
+	std::cout << "\nprinting bar" << std::endl;
+	bar = boo;
+	bar.printseq();
+
+	return 0;
+}
+#+end_src
