@@ -5,7 +5,7 @@ An lvalue is an expression that refers to a memory location and allows us to tak
 #+end_quote
 
 #+begin_quote
-An rvalue is an expression that is not an lvalue.
+An rvalue is an expression that is not an lvalue. Really these are things such as constants or otherwise temporary objects.
 #+end_quote
 Some examples
 #+begin_src C++
@@ -26,28 +26,45 @@ Some examples
   int* p2 = &foobar(); // error, cannot take the address of an rvalue
   j = 42;              // ok, 42 is an rvalue
 #+end_src
-[[http://thbecker.net/articles/rvalue_references/section_01.htmlexternal_link][ reference]]
+[[http://thbecker.net/articles/rvalue_references/section_01.html][Go here for more thorough explanation on rvalues]]
+
+[[https://docs.microsoft.com/en-us/cpp/cpp/lvalues-and-rvalues-visual-cpp?view=vs-2019][msft's explanation based off the C++17 standard]]
+
+In layman's terms, lvalues are associated with storage. You can access storage to get a value (lvalues can legally be used on the right and left side of = despite the suggestive =l= in lvalue) and you can replace a value in storage with another value (i.e. with lvalues you can perform assignment).
+rvalues are constants/values that we may or may not be interested storing inside lvalues (might only be interested in using an rvalue as part of a computation expression e.g. the =2= in the assignment =half = full / 2= would be considered an rvalue).
 
 * TODO Pointer types
 Pointers are declarations of the form.
 #+begin_src C++
   int *foo = &bar;
 #+end_src
-This assigns =foo= to the address of the variable =bar=;
+This assigns =foo= to the memory address of the variable =bar=;
 - To access the value of =bar=, you must make statements of the form =*foo=.
-=*= is the _indirection_ or _dereference_ operator which enables you to access the object the pointer points to. This becomes important in situations where you want a function to modify its arguments and use call by reference (albeit references provide cleaner method of accomplishing this).
+=*= is the _indirection_ or _dereference_ operator which enables you to access the object the pointer points to. This becomes important in situations where you want a function to modify its arguments (albeit references provide cleaner method of accomplishing this—more on this later).
+
+By default functions in =C/C++= are _called by value_, which means that functions work with _copies_ of the passed parameters instead of the actual parameters themselves.
+This may be fine for some problems, (e.g. computing the sum of two variables) but in other cases we are interested in modifying the variables themselves. Pointers help us here because for a function with pointer parameters, arguments _memory addresses_ are called by value; so dereferencing them provides access to the original parameters themselves. Here is the classic =swap= example where we want to exchange the values stored between two variables. 
 e.g.,
 #+begin_src C++
   void swap(int* x, int* y)
   {
     int tmp;
     tmp = *x;
-    *x = *y;                      // accesses a & b through indirection.
+    *x = *y;                      // Accesses a & b through indirection.
     *y = tmp;
   }
-  // code
-  swap(&a, &b);
+  int main()
+  {
+    int a = 1, b = 2;
+    swap(&a, &b);                 // Now a = 2, b = 1.
+    return 0;
+  }
 #+end_src
+Note that although =a= and =b= have been declared integers, =&a= and =&b= are considered pointers.
+
+
+
+
 
 ** Complicated pointer declarations with const
 Using =const= with pointers can enable certain types of protections depending on your needs.
