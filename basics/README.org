@@ -218,7 +218,6 @@ I don't really like using these idioms, but they make come up infrequently so it
      1a:	mov    dword ptr [eax], 10      ; *p' = 10
    #+end_src
    
-
 4) =++(*p)= - indirect =p=, increment =*p=, return updated =*p=. \\
 
    indirection is performed first and then the indirected value is incremented and returned.
