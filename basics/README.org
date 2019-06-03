@@ -152,7 +152,7 @@ I don't really like using these idioms, but they make come up infrequently so it
    This can be confusing because a precedence table will show that postfix =++= holds a higher precedence than =*=. Higher precedence means that postfix operation is applied first, but the evaluating the expression makes you think the indirection is performed first. But if this were the case, then you would be incrementing the value pointed by p after evaluating the expression, and this is not so! This can be explained with a quick example and examining the relevant portion of disassembly.
 
    Suppose we have the following C program.
-#+begin_src C
+   #+begin_src C
      #include <stdio.h>
      #include <stdlib.h>
      int main()
@@ -161,14 +161,14 @@ I don't really like using these idioms, but they make come up infrequently so it
          ,*p++ = 10;
          return 0;
      }
-#+end_src
+   #+end_src
    The part we are interested in is, =*p++ = 10;= is disassembled below.
-#+begin_src asm
-  13:	mov    eax, dword ptr [ebp - 4] ; ebp - 4 is where p is stored.
-  16:	lea    edx, [eax + 4]           ; edx = p + 1;
-  19:	mov    dword ptr [ebp - 4], edx ; p' = p + 1;
-  1c:	mov    dword ptr [eax], 10      ; *p = 10;
-#+end_src
+   #+begin_src asm
+         13:	mov    eax, dword ptr [ebp - 4] ; ebp - 4 is where p is stored.
+         16:	lea    edx, [eax + 4]           ; edx = p + 1;
+         19:	mov    dword ptr [ebp - 4], edx ; p' = p + 1;
+         1c:	mov    dword ptr [eax], 10      ; *p = 10;
+   #+end_src
    The assembly shows that the stack location holding the definition of =p= is indeed incremented before indirection takes place, however the original value of =p= has been loaded into =eax=, and so =10= is still assigned to the initial address held by =p=. Note that, the above program illustrates a memory leak as the return address of =malloc= is now lost.
 
 
