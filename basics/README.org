@@ -194,7 +194,7 @@ I don't really like using these idioms, but they make come up infrequently so it
      1b:	mov    eax, dword ptr [ebp - 4] ; eax = p
      1e:	mov    dword ptr [eax], edx     ; *p' = *p + 1 (p* value update)
    #+end_src
-Note that =lea edx, [eax + 1]= does not perform indirection despite the bracing. =lea= is used to perform the calculation =*p + 1= and to store it in =edx=. 
+   Note that =lea edx, [eax + 1]= does not perform indirection despite the bracing. =lea= is used to perform the calculation =*p + 1= and to store it in =edx=. 
 
 3) =*++p=   - increment =p=, return =*p=.
    Incrementing p occurs first, then indirection is applied to the new value of p.
