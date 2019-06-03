@@ -221,6 +221,7 @@ I don't really like using these idioms, but they make come up infrequently so it
 4) =++(*p)= - indirect =p=, increment =*p=, return updated =*p=. \\
 
    indirection is performed first and then the indirected value is incremented and returned.
+   - Note that this expression cannot be used as an lvalue. =++*p = 10;= is illegal.
    #+begin_src C
      #include <stdio.h>
      #include <stdlib.h>
