@@ -157,7 +157,7 @@ I don't really like using these idioms, but they make come up infrequently so it
      #include <stdlib.h>
      int main()
      {
-         int *p = malloc(sizeof(*Arr) * 2);
+         int *p = malloc(sizeof(*p) * 2);
          *p++ = 10;
          return 0;
      }
@@ -165,15 +165,15 @@ I don't really like using these idioms, but they make come up infrequently so it
    The part we are interested in, =*p++ = 10;= is disassembled below.
    #+begin_src asm
      13:	mov    eax, dword ptr [ebp - 4] ; ebp - 4 is where p is stored.
-     16:	lea    edx, [eax + 4]           ; edx = p + 1;
-     19:	mov    dword ptr [ebp - 4], edx ; p' = p + 1;
-     1c:	mov    dword ptr [eax], 10      ; *p = 10;
+     16:	lea    edx, [eax + 4]           ; edx = p + 1
+     19:	mov    dword ptr [ebp - 4], edx ; p' = p + 1
+     1c:	mov    dword ptr [eax], 10      ; *p = 10; (initial p val used)
    #+end_src
    The assembly shows that the stack location holding the definition of =p= is indeed incremented before indirection takes place, however the original value of =p= has been loaded into =eax=, and so =10= is still assigned to the initial address held by =p=. Note that, the above program illustrates a memory leak as the return address of =malloc= is now lost.
 
 2) =(*p)++= - return =*p=, increment =*p=.
    Here indirection is taking place first, and so the postfix increment acts upon the value pointed to by p.             
-   - Note that, this expression unlike the prior one cannot be used as an lvalue. So =(*p)++ = 10;= is illegal.
+   - Note that this expression, unlike the prior one, cannot be used as an lvalue. So =(*p)++ = 10;= is illegal.
 
    Suppose we have the following C program.
    #+begin_src C
@@ -189,18 +189,54 @@ I don't really like using these idioms, but they make come up infrequently so it
    The relevant disassembly corresponding to =(*p)++= is shown below.   
    #+begin_src asm
      13:	mov    eax, dword ptr [ebp - 4] ; ebp - 4 is where p is stored.
-     16:	mov    eax, dword ptr [eax]     ; eax = *pᵢₙᵢₜᵢₐₗ
+     16:	mov    eax, dword ptr [eax]     ; eax = *p
      18:	lea    edx, [eax + 1]           ; edx = *p + 1
      1b:	mov    eax, dword ptr [ebp - 4] ; eax = p
-     1e:	mov    dword ptr [eax], edx     ; *p = *p + 1
+     1e:	mov    dword ptr [eax], edx     ; *p' = *p + 1 (p* value update)
    #+end_src
-
+Note that =lea edx, [eax + 1]= does not perform indirection despite the bracing. =lea= is used to perform the calculation =*p + 1= and to store it in =edx=. 
 
 3) =*++p=   - increment =p=, return =*p=.
    Incrementing p occurs first, then indirection is applied to the new value of p.
+   #+begin_src C
+     #include <stdio.h>
+     #include <stdlib.h>
+     int main()
+     {
+         int *p = malloc(sizeof(*p) * 2);
+         *++p = 10;
+         return 0;
+     }
+   #+end_src
+   Disassembly of =*++p = 10=,
+   #+begin_src asm
+     13:	add    dword ptr [ebp - 4], 4   ; p' = p + 1
+     17:	mov    eax, dword ptr [ebp - 4] ; eax = p'
+     1a:	mov    dword ptr [eax], 10      ; *p' = 10
+   #+end_src
    
-4) =++(*p)= - indirect =p=, 
 
+4) =++(*p)= - indirect =p=, increment =*p=, return updated =*p=.
+   indirection is performed first and then the indirected value is incremented and returned.
+   #+begin_src C
+     #include <stdio.h>
+     #include <stdlib.h>
+     int main()
+     {
+         int *p = malloc(sizeof(*p) * 2);
+         ++(*p);
+         return 0;
+     }
+   #+end_src
+   =++(*p)= disassembly
+   #+begin_src asm
+     13:	mov    eax, dword ptr [ebp - 4] ; ebp - 4 is where p is stored.
+     16:	mov    eax, dword ptr [eax]     ; eax = *p
+     18:	lea    edx, [eax + 1]           ; edx = *p + 1
+     1b:	mov    eax, dword ptr [ebp - 4] ; eax = p
+     1e:	mov    dword ptr [eax], edx     ; *p' = *p + 1
+   #+end_src
+   
 ** Smart Pointers
 - Useful for dynamic memory applications.
 - Acts like a regular pointer, with the important exception that it automatically deletes the object to which it points.
