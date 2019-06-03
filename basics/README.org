@@ -148,7 +148,7 @@ The errors that plague people come from:
 *** C style pointer Idioms
 I don't really like using these idioms, but they make come up infrequently so it is useful to know them.
 
-1) =*p++=   - return =*p=, increment =p=.
+1) =*p++=   - return =*p=, increment =p=. \\
    This can be confusing because a precedence table will show that postfix =++= holds a higher precedence than =*=. Higher precedence means that postfix operation is applied first, but the evaluating the expression makes you think the indirection is performed first. But if this were the case, then you would be incrementing the value pointed by p after evaluating the expression, and this is not so! This can be explained with a quick example and examining the relevant portion of disassembly.
 
    Suppose we have the following C program.
@@ -171,7 +171,7 @@ I don't really like using these idioms, but they make come up infrequently so it
    #+end_src
    The assembly shows that the stack location holding the definition of =p= is indeed incremented before indirection takes place, however the original value of =p= has been loaded into =eax=, and so =10= is still assigned to the initial address held by =p=. Note that, the above program illustrates a memory leak as the return address of =malloc= is now lost.
 
-2) =(*p)++= - return =*p=, increment =*p=.
+2) =(*p)++= - return =*p=, increment =*p=. \\
    Here indirection is taking place first, and so the postfix increment acts upon the value pointed to by p.             
    - Note that this expression, unlike the prior one, cannot be used as an lvalue. So =(*p)++ = 10;= is illegal.
 
@@ -196,7 +196,7 @@ I don't really like using these idioms, but they make come up infrequently so it
    #+end_src
    Note that =lea edx, [eax + 1]= does not perform indirection despite the bracing. =lea= is used to perform the calculation =*p + 1= and to store it in =edx=. 
 
-3) =*++p=   - increment =p=, return =*p=.
+3) =*++p=   - increment =p=, return =*p=. \\
    Incrementing p occurs first, then indirection is applied to the new value of p.
    #+begin_src C
      #include <stdio.h>
@@ -216,7 +216,7 @@ I don't really like using these idioms, but they make come up infrequently so it
    #+end_src
    
 
-4) =++(*p)= - indirect =p=, increment =*p=, return updated =*p=.
+4) =++(*p)= - indirect =p=, increment =*p=, return updated =*p=. \\
    indirection is performed first and then the indirected value is incremented and returned.
    #+begin_src C
      #include <stdio.h>
