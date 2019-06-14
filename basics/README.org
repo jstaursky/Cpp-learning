@@ -33,8 +33,7 @@ Some examples
 In layman's terms, lvalues are associated with storage. You can access storage to get a value (lvalues can legally be used on the right and left side of = despite the suggestive =l= in lvalue) and you can replace a value in storage with another value (i.e. with lvalues you can perform assignment).
 rvalues are constants/values that we may or may not be interested storing inside lvalues (might only be interested in using an rvalue as part of a computation expression e.g. the =2= in the assignment =half = full / 2= would be considered an rvalue).
 
-* TODO Pointer types
-** Classic/Ordinary C style pointers
+* Classic/Ordinary C style pointers
 Pointers are declarations of the form.
 #+begin_src C++
   int *foo = &bar;
@@ -63,93 +62,25 @@ e.g.,
 #+end_src
 Note that although =a= and =b= have been declared integers, =&a= and =&b= are considered pointers.
 
-*** Pointer declarations with const
-Using =const= with pointers can enable certain types of protections depending on your needs.
-**** Pointers to a constant int
-#+begin_src C++
-  int const* foo;            // pointer to const int
-#+end_src
-Provides the following type of protection.
-#+begin_quote
-Protects the integer being pointed to from being changed/modified.
-- The value of =foo= can change.
-- The value of =*foo= cannot change.
-#+end_quote
-Note:
-- the integer being pointed to does not have to be declared =const=.
-- the pointer to a constant int can change where it points, but cannot change the value of the variable to which it points.
-e.g.,
-#+begin_src C++
-  int fu = 0;
-  int const* foo = &fu;           // foo is a pointer to a const int.
-
-  int const bar = 1;
-  foo = &bar;                     // foo can be changed to ref
-                                  // another int of constant int.
-#+end_src
-
-*TL;DR* =int const* foo= protects the values of the variable to which it points. Preventing assignments such as =*foo = 100=. \\
-Such assignments will result in the compiler error:
-#+begin_src text
-you cannot assign tp a variable that is const.
-#+end_src
-
-**** Constant pointers
-#+begin_src C++
-  int* const foo;            // const pointer to int
-#+end_src
-Provides the following type of protection.
-#+begin_quote
-The pointer cannot be changed to point to somewhere else.
-- The value of =*foo= can change.
-- The value of =foo= cannot change.
-#+end_quote
-Note:
-- =foo= can change the value of the variable it is initialized to.
-- once initialized to a variable, =foo= cannot change to point elsewhere.
-
-***** Caveats to using constant pointers
-=int* const foo= must be initialized to a nonconstant variable.
-For some reason, intializing a constant pointer to int to a constant int can enable the const int to be changed through the constant pointer to int.
-i.e.,
-#+begin_src C++
-  int const foo = 1;
-  int* const bar = &foo;
-#+end_src
-Results in the compiler warning
-#+begin_src text
-initialization discards qualifiers from pointer target type.
-#+end_src
-
-**** Constant pointers to constants
-#+begin_src C++
-  int const* const foo = &bar;    // const pointer to const int
-#+end_src
-Provides the following type of protection.
-#+begin_quote
-The pointer cannot point to another variable once initialized, and the value of the variable being pointed to cannot be changed.
-#+end_quote
-Note:
-- A constant pointer to a constant must be initialized when declared.
-
-*** Dynamic Memory Allocation with C-style pointers
+** Dynamic Memory Allocation with C-style pointers
 Dynamic memory is on-the-fly runtime memory allocation in heap. This is achieved through functions such as =malloc=, =calloc=, =realloc=, =free=. Working with dynamic memory can be tricky but the idea behind the process is pretty simple.
 1) Use =malloc= to set aside a portion of heap to work with.
 2) Keep track of the address returned by =malloc= (Needed for free'ing the heap segment later).
 3) Free heap after finished work with allocated memory.
 
 The errors that plague people come from:
-**** Memory Leaks
+*** Memory Leaks
 A memory leak is simply wasted memory that accumulates that the programmer has either improperly handled, or neglected to handle the free'ing of.
 I say neglected because sometimes for (smaller) applications this isn't really a big deal. The OS will clean up the virtual address space of the program for you upon exit regardless of how it was handled during runtime. So if your not doing any intensive memory allocating, its probably ok to leave the leak (albeit bad practice).
 
 Memory leaks happen whenever the address returned from =malloc= is never =free='d.
 
-This can happen in the following ways.
-
-***** Losing the address returned by malloc
+#+begin_center
+This happens when the address returned by malloc is lost
+#+end_center
 Common ways this happens...
-****** Declaring a function-local variable to this value and then going out of scope.
+**** Going out of scope
+Declaring a function-local variable to this value and going out of scope.
 #+begin_src C++
     void foo ()
     {
@@ -161,7 +92,7 @@ Common ways this happens...
         // allocated but impossible to free.
     }
 #+end_src
-****** Reassigning the ptr variable keeping the return address
+**** Reassigning the ptr variable keeping the return address
 ... and having no other variable store this value.
 #+begin_src C++
   char *strptr_alloc (size_t len)
@@ -182,7 +113,7 @@ Common ways this happens...
       puts (store_string);
   }
 #+end_src
-****** Incrementing the return address (e.g. ptr++)
+**** Incrementing the return address (e.g. ptr++)
 ... and trying to free the new incremented address. The argument to =free= must be a pointer to a previously returned address from a memory allocation function. Technically this should result in undefined behavior but depending on the compiler, this will likely end up as a memory leak.
 #+begin_src C++
   char *strptr_alloc (size_t len)
@@ -205,7 +136,7 @@ Common ways this happens...
       free (store_string); // Undefined + memory leak.
   }
 #+end_src
-***** realloc failures
+**** realloc failures
 When =realloc= is unable to allocate memory, it returns =NULL=. If you overwrite realloc's argument buffer by assignment to its return value, the original buffer will be lost. So avoid statements such as:
 #+begin_src C++
   buffer = realloc (buffer, new_size);
@@ -215,10 +146,10 @@ and instead use:
   if ((tmp = realloc (buffer, new_size)) != NULL)
     buffer = tmp;
 #+end_src
-**** TODO Double Freeing
+*** TODO Double Freeing
 Freeing an area of heap that has already been free'd. This causes undefined behavior.
 
-*** C style pointer Idioms
+** C style pointer Idioms
 I don't really like using these idioms, but they make come up infrequently so it is useful to know them.
 
 1) =*p++=   - return =*p=, increment =p=. \\
@@ -314,10 +245,79 @@ I don't really like using these idioms, but they make come up infrequently so it
      1e:	mov    dword ptr [eax], edx     ; *p' = *p + 1
    #+end_src
    
-** Smart Pointers
+*** Pointer declarations with const
+Using =const= with pointers can enable certain types of protections depending on your needs.
+**** Pointers to a constant int
+#+begin_src C++
+  int const* foo;            // pointer to const int
+#+end_src
+Provides the following type of protection.
+#+begin_quote
+Protects the integer being pointed to from being changed/modified.
+- The value of =foo= can change.
+- The value of =*foo= cannot change.
+#+end_quote
+Note:
+- the integer being pointed to does not have to be declared =const=.
+- the pointer to a constant int can change where it points, but cannot change the value of the variable to which it points.
+e.g.,
+#+begin_src C++
+  int fu = 0;
+  int const* foo = &fu;           // foo is a pointer to a const int.
+
+  int const bar = 1;
+  foo = &bar;                     // foo can be changed to ref
+                                  // another int of constant int.
+#+end_src
+
+*TL;DR* =int const* foo= protects the values of the variable to which it points. Preventing assignments such as =*foo = 100=. \\
+Such assignments will result in the compiler error:
+#+begin_src text
+you cannot assign tp a variable that is const.
+#+end_src
+
+**** Constant pointers
+#+begin_src C++
+  int* const foo;            // const pointer to int
+#+end_src
+Provides the following type of protection.
+#+begin_quote
+The pointer cannot be changed to point to somewhere else.
+- The value of =*foo= can change.
+- The value of =foo= cannot change.
+#+end_quote
+Note:
+- =foo= can change the value of the variable it is initialized to.
+- once initialized to a variable, =foo= cannot change to point elsewhere.
+
+***** Caveats to using constant pointers
+=int* const foo= must be initialized to a nonconstant variable.
+For some reason, intializing a constant pointer to int to a constant int can enable the const int to be changed through the constant pointer to int.
+i.e.,
+#+begin_src C++
+  int const foo = 1;
+  int* const bar = &foo;
+#+end_src
+Results in the compiler warning
+#+begin_src text
+initialization discards qualifiers from pointer target type.
+#+end_src
+
+**** Constant pointers to constants
+#+begin_src C++
+  int const* const foo = &bar;    // const pointer to const int
+#+end_src
+Provides the following type of protection.
+#+begin_quote
+The pointer cannot point to another variable once initialized, and the value of the variable being pointed to cannot be changed.
+#+end_quote
+Note:
+- A constant pointer to a constant must be initialized when declared.
+
+* Smart Pointers
 - Useful for dynamic memory applications.
 - Acts like a regular pointer, with the important exception that it automatically deletes the object to which it points.
-*** shared_ptr
+** shared_ptr
 Allows multiple pointers to refer to the same object.
 - Is a template.
 #+begin_src C++
@@ -358,7 +358,7 @@ Once a =shared_ptr= counter goes to zero, the =shared_ptr= automatically frees t
 =shared_ptr= ensures that so long as there are any shared_ptrs attached to the memory, the memory itself will not be freed.
 #+end_quote
 
-**** operations common to shared_ptr and unique_ptr
+*** operations common to shared_ptr and unique_ptr
 1) =shared_ptr<T> sp= 
    =unique_ptr<T> up= 
    Null smart pointer that can point to objects of type =T=.
@@ -374,7 +374,7 @@ Once a =shared_ptr= counter goes to zero, the =shared_ptr= automatically frees t
    Swaps the pointers in p and q.
 
 
-**** Operations Specific to shared_ptr
+*** Operations Specific to shared_ptr
 1) =make_shared<T>(args)= 
    Returns a shared_ptr pointing to a dynamically allocated object of type T. Uses ~args~ to initialize that object.
 2) =shared_ptr<T>p(q)= 
@@ -387,7 +387,7 @@ Once a =shared_ptr= counter goes to zero, the =shared_ptr= automatically frees t
    Returns the number of objects sharing with p; may be a slow operation, intended primarily for debugging purposes.
 
 
-*** unique_ptr
+** unique_ptr
 "owns" the object to which it points.
 
 * Reference types
