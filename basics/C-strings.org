@@ -30,7 +30,7 @@ That is
 #+end_src
 
 * String Literals vs Character Constants
-="This is a string literal"= is a string literal.
+~"This is a string literal"~ is a string literal.
 Note that a string literal containing a single character isn't the same as a character constant. The string literal ="a"= is represented by a pointer to a memory location that contains the character =a= (followed by a null character). Whereas the character constant ='a'= is represented by an integer (the numerical code for the character).
 
 * Strings using character array
