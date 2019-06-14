@@ -177,7 +177,7 @@ The part we are interested in, =*p++ = 10;= is disassembled below.
 #+end_src
 The assembly shows that the stack location holding the definition of =p= is indeed incremented before indirection takes place, however the original value of =p= has been loaded into =eax=, and so =10= is still assigned to the initial address held by =p=. Note that, the above program illustrates a memory leak as the return address of =malloc= is now lost.
 
-** =(*p)++=
+*** =(*p)++=
 return =*p=, increment =*p=. \\
 
 Here indirection is taking place first, and so the postfix increment acts upon the value pointed to by p.             
@@ -204,7 +204,7 @@ The relevant disassembly corresponding to =(*p)++= is shown below.
 #+end_src
 Note that =lea edx, [eax + 1]= does not perform indirection despite the bracing. =lea= is used to perform the calculation =*p + 1= and to store it in =edx=. 
 
-** =*++p=
+*** =*++p=
 increment =p=, return =*p=. \\
 
 Incrementing p occurs first, then indirection is applied to the new value of p.
@@ -225,7 +225,7 @@ Disassembly of =*++p = 10=,
   1a:	mov    dword ptr [eax], 10      ; *p' = 10
 #+end_src
    
-** =++(*p)=
+*** =++(*p)=
 indirect =p=, increment =*p=, return updated =*p=. \\
 
 indirection is performed first and then the indirected value is incremented and returned.
