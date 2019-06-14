@@ -144,30 +144,31 @@ The errors that plague people come from:
      #+begin_src C++
        void foo ()
        {
-         int *iptr = (int *)malloc (sizeof(int));
-         int i = 10;
-         iptr = &i;
-         return;
-         // Memory Leak.
-         // Have now lost iptr and therefore heap still allocated but impossible to free.
+           int *iptr = (int *)malloc (sizeof(int));
+           int i = 10;
+           iptr = &i;
+           return;
+           // Memory Leak.
+           // Have now lost iptr and therefore heap still allocated but impossible to free.
        }
      #+end_src
    - Reassigning the ptr variable keeping the return address and having no other variable store this value.
      #+begin_src C++
        char *strptr_alloc (size_t len)
        {
-         char *strptr = (char *)malloc (sizeof(char) * len);
-         return strptr; // OK so long as calling function free's the returned string eventually.
+           char *strptr = (char *)malloc (sizeof(char) * len);
+           return strptr; // OK so long as calling function free's the returned string eventually.
        }
 
        int main ()
        {
-         char *hello = "hello world";
-         char *store_string = strptr_alloc (strlen(hello) + 1);
-         strcpy (store_string, hello);
-         store_string = "New hello World"; // Memory leak. Malloc'd address now lost.
-         puts (store_string);
+           char *hello = "hello world";
+           char *store_string = strptr_alloc (strlen(hello) + 1);
+           strcpy (store_string, hello);
+           store_string = "New hello World"; // Memory leak. Malloc'd address now lost.
+           puts (store_string);
        }
+     #+end_src
    - Incrementing the return address (e.g. ptr++) and then trying to free the new incremented address. The argument to free must be a pointer to a previously returned address from a memory allocation function. Technically this should result in undefined behavior but depending on the compiler, this will likely end up as a memory leak.
      #+begin_src C++
        char *strptr_alloc (size_t len)
