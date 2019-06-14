@@ -14,7 +14,7 @@ _character array_.
 
 #+end_src
 
-However, we must _be careful not to make the mistake of thinking that the two versions of =date= are interchangeable_.
+However, we must _be careful not to make the mistake of thinking that the two versions of_ =date= _are interchangeable_.
 There are significant differences between the two.
 
 - In the array version, the characters stored in =date= can be modified, like the elements of any array. In the pointer version, =date= points to a string literal. _Attempting to modify a string literal causes undefined behavior_.
@@ -30,7 +30,8 @@ That is
 #+end_src
 
 * String Literals vs Character Constants
-A string literal containing a single character isn't the same as a character constant. The string literal "a" is represented by a pointer to a memory location that contains the character a (followed by a null character). The character constant 'a' is represented by an integer (the numerical code for the character).
+="This is a string literal"= is a string literal.
+Note that a string literal containing a single character isn't the same as a character constant. The string literal ="a"= is represented by a pointer to a memory location that contains the character =a= (followed by a null character). Whereas the character constant ='a'= is represented by an integer (the numerical code for the character).
 
 * Strings using character array
 Strings as character arrays
@@ -54,23 +55,24 @@ When string value is directly assigned to a pointer, in most of the compilers, i
 #+begin_src c
 char *str  =  "GfG";  
 #+end_src
-  In the above line ~“GfG”~ is stored in a shared read only location, but pointer =str= is stored in a read-write memory. _You can change_ =str= _to point something else, but you cannot change the value present at_ =str=. So this kind of string should only be used when we don’t want to modify string at a later stage in program.
+In the above line ~“GfG”~ is stored in a shared read only location, but pointer =str= is stored in a read-write memory. _You can change_ =str= _to point something else, but you cannot change the value present at_ =str=. So this kind of string should only be used when we don’t want to modify string at a later stage in program.
 
 ** Dynamically allocated in heap segment.
 Strings are stored like other dynamically allocated things in C and can be shared among functions.
 #+begin_src c
-char *str;
-int size = 4; 
-str = (char *)malloc(sizeof(char)*size);
-*(str+0) = 'G'; 
-*(str+1) = 'f';  
-*(str+2) = 'G';  
-*(str+3) = '\0';  
+  char *str;
+  int size = 4; 
+  str = (char *)malloc(sizeof(char)*size);
+  // OK for heap ptr to chars as heap is writable.
+  *(str+0) = 'G'; 
+  *(str+1) = 'f';  
+  *(str+2) = 'G';  
+  *(str+3) = '\0';  
 #+end_src
 
 * Try to modify string (array vs pointer methods)
 ** Character array method
-Below program works perfectly fine as str[] is stored in writable stack segment.
+Below program works perfectly fine as =str[]= is stored in writable stack segment.
 #+begin_src C :results output
 int main() {
   char str[] = "GfG";
@@ -81,35 +83,33 @@ int main() {
 #+end_src
 
 ** Stack based character pointer method
-The below program may crash (gives segmentation fault error) because the line *(str+1) = ‘n’ tries to write a read only memory.
+The below program will crash (gives *segmentation fault error*) because the line =*(str+1) = ‘n’= tries to write a read only memory.
 #+begin_src C
-int 
-main()
-{
-  char *str; 
-  str = "GfG";     
-  *(str+1) = 'n'; 
-  getchar();
-  return 0;
-}
+  int main()
+  {
+    char *str;                    // stack based char*
+    str = "GfG";                  // Assigns to read only area.
+    *(str+1) = 'n';               // WRONG, cannot overwrite readonly data.
+    getchar();
+    return 0;
+  }
 #+end_src
 
 ** Heap based character pointer method
 Below program works perfectly fine as data at str is stored in writable heap segment.
 #+begin_src c
-int 
-main()
-{
-  int size = 4;
-  char *str = (char *)malloc(sizeof(char)*size);
-  *(str+0) = 'G'; 
-  *(str+1) = 'f';  
-  *(str+2) = 'G';    
-  *(str+3) = '\0';  
-  *(str+1) = 'n';  
-  getchar();
-  return 0;
-}
+  int main()
+  {
+    int size = 4;
+    char *str = (char *)malloc(sizeof(char)*size); // heap based char*
+    *(str+0) = 'G';                                // head is writable
+    *(str+1) = 'f';  
+    *(str+2) = 'G';    
+    *(str+3) = '\0';  
+    *(str+1) = 'n';  
+    getchar();
+    return 0;
+  }
 #+end_src     
 
 * Try to return string from a function (array vs pointer methods)
