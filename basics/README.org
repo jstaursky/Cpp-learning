@@ -75,9 +75,9 @@ I say neglected because sometimes for (smaller) applications this isn't really a
 
 Memory leaks happen whenever the address returned from =malloc= is never =free='d.
 
-#+begin_center
+#+begin_quote
 This happens when the address returned by malloc is lost
-#+end_center
+#+end_quote
 Common ways this happens...
 **** Going out of scope
 Declaring a function-local variable to this value and going out of scope.
