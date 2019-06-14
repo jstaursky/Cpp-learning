@@ -148,8 +148,8 @@ The errors that plague people come from:
            int i = 10;
            iptr = &i;
            return;
-           // Memory Leak.
-           // Have now lost iptr and therefore heap still allocated but impossible to free.
+           // Memory Leak. Have now lost iptr and therefore heap still 
+           // allocated but impossible to free.
        }
      #+end_src
    - Reassigning the ptr variable keeping the return address and having no other variable store this value.
@@ -157,7 +157,9 @@ The errors that plague people come from:
        char *strptr_alloc (size_t len)
        {
            char *strptr = (char *)malloc (sizeof(char) * len);
-           return strptr; // OK so long as calling function free's the returned string eventually.
+           return strptr; 
+           // OK so long as calling function free's the returned string
+           // eventually.
        }
 
        int main ()
@@ -165,7 +167,8 @@ The errors that plague people come from:
            char *hello = "hello world";
            char *store_string = strptr_alloc (strlen(hello) + 1);
            strcpy (store_string, hello);
-           store_string = "New hello World"; // Memory leak. Malloc'd address now lost.
+           store_string = "New hello World"; 
+           // Memory leak. Malloc'd address now lost.
            puts (store_string);
        }
      #+end_src
@@ -173,19 +176,22 @@ The errors that plague people come from:
      #+begin_src C++
        char *strptr_alloc (size_t len)
        {
-         char *strptr = (char *)malloc (sizeof(char) * len);
-         return strptr; // OK so long as calling function free's the returned string eventually.
+           char *strptr = (char *)malloc (sizeof(char) * len);
+           return strptr; 
+           // OK so long as calling function free's 
+           // the returned string eventually.
        }
        int main ()
        {
-         char *hello = "hello world";
-         char *store_string = strptr_alloc (strlen(hello) + 1);
-         strcpy (store_string, hello);
-         do {
-             puts (store_string);
-         } while (*store_string++);
-         // free'ing store_string will no longer work unless able to backtrack back to the initial starting address.
-         free (store_string); // Undefined + memory leak.
+           char *hello = "hello world";
+           char *store_string = strptr_alloc (strlen(hello) + 1);
+           strcpy (store_string, hello);
+           do {
+               puts (store_string);
+           } while (*store_string++);
+           // free'ing store_string will no longer work unless able to
+           // backtrack back to the initial starting address.
+           free (store_string); // Undefined + memory leak.
        }
      #+end_src
    - realloc failures. When realloc is unable to allocate memory, it returns NULL. If you overwrite realloc's argument buffer by assignment to its return value, the original buffer will be lost. So avoid statements such as:
