@@ -935,14 +935,43 @@ control of the section in which they are declared.
 
 This is how you use =friend=,
 #+begin_src C++
-  class myClass {
-    friend void foo();
-    private:
-      int bar = 0;
-  };
-  void foo(myClass fu) {
-    fu.bar++;
-  }
+#include <iostream>
+using namespace std;
+
+class Pokemon {
+    Pokemon() : hp(100) {}
+    friend class Trainer;
+    friend void eatRareCandy (Pokemon);
+private:
+    int hp;
+public:
+    inline int getBattleHealth () { return hp; }
+};
+
+class Trainer {
+private:
+    Pokemon minion;
+public:
+    Trainer() = default;
+    inline void applyEvolutionStone ()
+    {
+        minion.hp += 100;
+        cout << minion.hp;
+    }
+};
+
+
+void eatRareCandy (Pokemon animal)
+{
+    animal.hp++;
+}
+
+int main(int argc, char *argv[])
+{
+    Trainer ash;
+    ash.applyEvolutionStone ();
+    return 0;
+}
 #+end_src
 
 * Operator Overloading
