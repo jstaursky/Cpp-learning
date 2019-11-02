@@ -5,8 +5,8 @@ A class is a collection of _class members_ which can be:
 - member types or typedefs (e.g. "nested classes")
 - member templates (of any kind: variable, function, class or alias template)
 
-Declaring a class creates a new type, and it becomes possible to instantiate objects of that class.
-Example,
+Declaring a class creates a new type, and it becomes possible to instantiate
+objects of that class. Example,
 #+begin_src C++
   class Vector {
   public:
@@ -19,7 +19,8 @@ Example,
 #+end_src
 
 ** Static Members
-- If a member variable is declared =static=, all objects of that class have access to that variable.
+- If a member variable is declared =static=, all objects of that class have access
+  to that variable.
 #+begin_src C++
   class foo {
   private:
@@ -32,21 +33,25 @@ Example,
 
   int foo::bar;                   // cannot be declared inside main.
 #+end_src
-Note that a separate definition of the variable must be placed outside the class, otherwise we will get compiler error stating:
+Note that a separate definition of the variable must be placed outside the
+class, otherwise we will get compiler error stating:
 #+begin_src text
 undefined reference to foo::bar in function foo::set_bar.
 #+end_src
 
 #+begin_quote
-static members are associated with the class rather than with individual objects of the class type.
+static members are associated with the class rather than with individual objects
+of the class type.
 #+end_quote
 The static members of a class exist outside any object.
 - static members cannot be initialized by the class constructor.
 - cannot initialize a static member inside the class.
 
 
-- If a member function is declared =static=, it may be called before any instances of the class are defined.
-- If we define a static member outside the class, we do not repeat the =static= keyword.
+- If a member function is declared =static=, it may be called before any instances
+  of the class are defined.
+- If we define a static member outside the class, we do not repeat the =static=
+  keyword.
 
 ** Access control and Encapsulation
 *** private specifier
@@ -59,7 +64,9 @@ We can also designate members access control explicitly.
   };
 #+end_src
 Members defined after a _private_ specifier are:
-- _inaccessible_ to code defined outside the class. (i.e., code that uses the class for its functionality can only use what is defined in the classes interface).
+- _inaccessible_ to code defined outside the class. (i.e., code that uses the
+  class for its functionality can only use what is defined in the classes
+  interface).
 - _accessible_ to the member functions of the class.
 
 *** protected specifier
@@ -69,13 +76,18 @@ Only the class itself, derived classes and friends have access.
 Everyone has access to class members.
 
 ** Defining Member Functions
-Class member functions can be defined either inside or outside the class declaration.
-Note:
-- Inside a member function, we can refer directly to the members of the object on which the function was called (i.e., other members inside the class which the member function is apart of). We do not have to use the member access operator.
+Class member functions can be defined either inside or outside the class
+declaration. Note:
+- Inside a member function, we can refer directly to the members of the object
+  on which the function was called (i.e., other members inside the class which
+  the member function is apart of). We do not have to use the member access
+  operator.
 
 *** In-class member function definitions
-When a class function is defined within the class, it is called an _inline function_.
-- Do this when the body of the function is small, otherwise just write the function prototype inside the class and define the function outside the class.
+When a class function is defined within the class, it is called an _inline
+function_.
+- Do this when the body of the function is small, otherwise just write the
+  function prototype inside the class and define the function outside the class.
   Example in-class member function definition.
   #+begin_src C++
     class foo {
@@ -88,14 +100,15 @@ When a class function is defined within the class, it is called an _inline funct
     };
   #+end_src
   Note:
-  - You can _request_ the compiler to inline the function during compilation via the keyword =inline=.
-    e.g.,
+  - You can _request_ the compiler to inline the function during compilation via
+    the keyword =inline=. e.g.,
     #+begin_src C++
       inline void fu(int b) {
         bar = b;
       }
     #+end_src
-    This might make the compiler replace the function with an equivalent macro and thereby eliminate the overhead associated with calling a function.
+    This might make the compiler replace the function with an equivalent macro
+    and thereby eliminate the overhead associated with calling a function.
     
 *** member functions defined outside the class
 Class member functions defined outsided the class must:
@@ -115,7 +128,8 @@ Class member functions defined outsided the class must:
   #+end_src
   
 *** Const member functions
-Member functions of a class can be declared =const=, which tells the compiler that the function will not modify the object it is apart of.
+Member functions of a class can be declared =const=, which tells the compiler that
+the function will not modify the object it is apart of.
 - In a const member function you cannot modify any member variables.
 Example
 #+begin_src C++
@@ -130,12 +144,15 @@ Example
 So in this example =fu()= could not be declared as a const member function.
 
 ** Constructors
-A constructor ensures member data of a new instantiation of a class object is set properly. This is a function that is called automatically every time a new object is made from the class. \\
+A constructor ensures member data of a new instantiation of a class object is
+set properly. This is a function that is called automatically every time a new
+object is made from the class. \\
 Note:
 - constructors have the same name as the class it initializes.
 - constructors do not have a return type.
 - constructors cannot be declared =const=.
-- constructors may be defined inside the class or declared in-class and defined outside the class.
+- constructors may be defined inside the class or declared in-class and defined
+  outside the class.
 - constructors can be overloaded.
 #+begin_src C++
   class foo {
@@ -164,8 +181,9 @@ Note:
 #+end_src
 
 *** Synthesized Default Constructor
-When we do not initialize a class using a constructor the members are default initialized by the _synthesized default constructor_ (fancy name for a compiler generated constructor).
-The default constructor initializes members by:
+When we do not initialize a class using a constructor the members are default
+initialized by the _synthesized default constructor_ (fancy name for a compiler
+generated constructor). The default constructor initializes members by:
 1) Determining if there is an in-class initializer.
    #+begin_src C++
      class foo {
@@ -176,8 +194,9 @@ The default constructor initializes members by:
    (unintialized local variables of built-in type are left undefined).
    
 Note:
-- If we define any constructors, the class will not have a default constructor unless we define it ourselves.
-  Here is how to define the default constructor explicitly,
+- If we define any constructors, the class will not have a default constructor
+  unless we define it ourselves. Here is how to define the default constructor
+  explicitly,
   #+begin_src C++
     class foo {
     public:
@@ -188,12 +207,15 @@ Note:
   #+end_src
 
 Note:
-- If a class has a member of =class= type, and that class does not have a default constructor, the compiler _cannot initialize_ that member.
-- default constructor will fail if you have non-initialized const or reference data members.
+- If a class has a member of =class= type, and that class does not have a default
+  constructor, the compiler _cannot initialize_ that member.
+- default constructor will fail if you have non-initialized const or reference
+  data members.
 
 
 *** Constructors with initialization lists
-Allows us to replace explicit statements setting member data with implicit initialization.
+Allows us to replace explicit statements setting member data with implicit
+initialization.
 #+begin_src C++
   class foo {
     public:
@@ -208,11 +230,17 @@ Allows us to replace explicit statements setting member data with implicit initi
 
 #+end_src
 Note:
-- Using an initialization list, we avoid having to name the arguments something different from the member data variable names.
-- When a member is omitted from the constructor initializer list, it is implicitly initialized using the same process as used by the synthesized default constructor.
+- Using an initialization list, we avoid having to name the arguments something
+  different from the member data variable names.
+- When a member is omitted from the constructor initializer list, it is
+  implicitly initialized using the same process as used by the synthesized
+  default constructor.
 
 ** Destructors
-Destructors delete objects. If a destructor is not supplied by the programmer, then the compiler supplies a basic one. However, the compiler-supplied destructor does an absolute minimum and is only sufficient for very basic classes that do no dynamic memory allocation.
+Destructors delete objects. If a destructor is not supplied by the programmer,
+then the compiler supplies a basic one. However, the compiler-supplied
+destructor does an absolute minimum and is only sufficient for very basic
+classes that do no dynamic memory allocation.
 #+begin_src C++
   class foo {
     public:
@@ -222,20 +250,27 @@ Destructors delete objects. If a destructor is not supplied by the programmer, t
 #+end_src
   
 #+begin_quote
-A destructor is a member function that is automatically called when an object is destroyed.
+A destructor is a member function that is automatically called when an object is
+destroyed.
 #+end_quote
 *Destructor Declaration rules*.
-1) Destructors are declared using the same name as the class along with a =~= prefix.
-2) Destructors take no parameters. They cannot be overloaded. There is always one and only one desctructor for a given class.
+1) Destructors are declared using the same name as the class along with a =~=
+   prefix.
+2) Destructors take no parameters. They cannot be overloaded. There is always
+   one and only one desctructor for a given class.
 3) Destructors have no return type.
 
 *** When is a Destructor called
-A destructor is used automatically whenever an object of its type is destroyed/deleted: i.e.,
+A destructor is used automatically whenever an object of its type is
+destroyed/deleted: i.e.,
 1) variables are destroyed when they go out of scope.
-2) Members of an object are destroyed when the object of which they are a part of is destroyed.
-3) Dynamically allocated objects are destroyed when the ~delete~ operator is applied to a pointer to the object.
+2) Members of an object are destroyed when the object of which they are a part
+   of is destroyed.
+3) Dynamically allocated objects are destroyed when the ~delete~ operator is
+   applied to a pointer to the object.
 #+begin_quote
-Destructors are never called explicitly by the programmer. Calls to destructors are inserted automatically by the compiler.
+Destructors are never called explicitly by the programmer. Calls to destructors
+are inserted automatically by the compiler.
 #+end_quote
 
 Example 
@@ -266,7 +301,8 @@ Example
 #+end_src
 
 **** Caveats
-A destructor is not run when a reference or a pointer to an object goes out of scope.
+A destructor is not run when a reference or a pointer to an object goes out of
+scope.
 
 #+begin_src C++
   foo* bar = new foo();
@@ -276,7 +312,9 @@ A destructor is not run when a reference or a pointer to an object goes out of s
                                   // inside bar.
 #+end_src
 *** Virtual Destructors
-Destructors in a base class should be declared ~virtual~, this allows derived classes to override with their parents destructor when obj of their type is deleted.
+Destructors in a base class should be declared ~virtual~, this allows derived
+classes to override with their parents destructor when obj of their type is
+deleted.
 
 So really the example given earlier should instead look like
 #+begin_src C++
@@ -305,7 +343,8 @@ So really the example given earlier should instead look like
   }
 #+end_src
 
-Virtual destructors are useful when you might potientially delete an instance of a derived class through a pointer to base class.
+Virtual destructors are useful when you might potientially delete an instance of
+a derived class through a pointer to base class.
 #+begin_src C++
 class Base 
 {
@@ -320,22 +359,29 @@ class Derived : public Base
     }
 };
 #+end_src
-Here, you'll notice that I _didn't declare Base's destructor to be =virtual=._ Now, let's have a look at the following snippet:
+Here, you'll notice that I _didn't declare Base's destructor to be =virtual=._ Now,
+let's have a look at the following snippet:
 #+begin_src C++
   Base *b = new Derived();
   // use b
   delete b;                       // Here's the problem!
 #+end_src 
-Since Base's destructor is not =virtual= and =b= is a =Base*= pointing to a =Derived= object, =delete b= has *undefined behavior*.
+Since Base's destructor is not =virtual= and =b= is a =Base*= pointing to a =Derived=
+object, =delete b= has *undefined behavior*.
 
 #+begin_quote
-[ in ~delete b~ ], if the static type of the object to be deleted is different from its dynamic type, the static type shall be a base class of the dynamic type of the object to be deleted and *the static type shall have a virtual destructor of the behavior is undefined*.
+[ in ~delete b~ ], if the static type of the object to be deleted is different
+from its dynamic type, the static type shall be a base class of the dynamic type
+of the object to be deleted and *the static type shall have a virtual destructor
+of the behavior is undefined*.
 #+end_quote
 
-Always make base classes' destructors virtual when they're meant to be manipulated polymorphically.
+Always make base classes' destructors virtual when they're meant to be
+manipulated polymorphically.
 
 #+begin_quote
-Virtual Destructors are needed if a base pointer pointing to a derived object is to be deleted.
+Virtual Destructors are needed if a base pointer pointing to a derived object is
+to be deleted.
 #+end_quote
 
 #+begin_src C++
@@ -344,7 +390,8 @@ Virtual Destructors are needed if a base pointer pointing to a derived object is
     virtual ~Base() = default;    // dynamic binding for the destructor.
   };
 #+end_src
-So long as the base class destructor is virtual, when we =delete= a pointer to base, the correct destructor will be run.
+So long as the base class destructor is virtual, when we =delete= a pointer to
+base, the correct destructor will be run.
 
 
 
@@ -365,15 +412,19 @@ So long as the base class destructor is virtual, when we =delete= a pointer to b
 
 
 * Classes - copy, move constructor - copy, move assignment operators
-If a class does not define all these members, the compiler automatically defines the missing operations.
+If a class does not define all these members, the compiler automatically defines
+the missing operations.
 
 ** Copy and Move constructors
-The copy and move constructors define what happens when an object is *initialized* from another object of the same type.
+The copy and move constructors define what happens when an object is *initialized*
+from another object of the same type.
 
 *** Copy Constructor
-*A copy constructor is a special constructor that is called whenever a new object is created and initialized with the data of another object of the same class*.
+*A copy constructor is a special constructor that is called whenever a new object
+is created and initialized with the data of another object of the same class*.
 
-A constructor is a copy constructor if its first parameter is a reference to the class type and any additional parameters have default values.
+A constructor is a copy constructor if its first parameter is a reference to the
+class type and any additional parameters have default values.
 #+begin_src C++
   class foo {
   public:
@@ -384,11 +435,19 @@ A constructor is a copy constructor if its first parameter is a reference to the
 - The first parameter to a copy constructor *must* be a reference type.
 - The reference must be a reference to the _same_ class.
 
-If you do not define a copy constructor, the synthesized default copy constructor is defined by the compiler. The synthesized copy constructor acts in the following mannor:
-- constructor memberwise copies the members of its argument into the object being created.
-This can prove problematic if for instance the class has a pointer data member. For then the default copy constructor will copy the same address into the other class instance and leave both pointers /pointing to the same data/. Thus when one of the objects changes its data through its pointer, it affects the other object as well.
+If you do not define a copy constructor, the synthesized default copy
+constructor is defined by the compiler. The synthesized copy constructor acts in
+the following mannor:
+- constructor memberwise copies the members of its argument into the object
+  being created.
+This can prove problematic if for instance the class has a pointer data member.
+For then the default copy constructor will copy the same address into the other
+class instance and leave both pointers /pointing to the same data/. Thus when one
+of the objects changes its data through its pointer, it affects the other object
+as well.
 
-Here is an implementation of a copy constructor that avoids the difficulties present in the default copy constructor.
+Here is an implementation of a copy constructor that avoids the difficulties
+present in the default copy constructor.
 #+begin_src C++
     #include <iostream>
     class Foo {
@@ -452,8 +511,11 @@ Copy Initialiation happens not only when using ===, but also when:
 - Return an object from a function that has a nonreference return type.
 
 *** Move Constructor
-A move constructor "steals" resources from a given object rather than copying them.
-- Like the copy constructor the move constructor has an initial parameter that is a reference to the class type. But in the move constructor the reference parameter is an *rvalue reference*.
+A move constructor "steals" resources from a given object rather than copying
+them.
+- Like the copy constructor the move constructor has an initial parameter that
+  is a reference to the class type. But in the move constructor the reference
+  parameter is an *rvalue reference*.
 
 Copy and move constructors are distinguished by their prototypes.
 #+begin_src C++
@@ -475,7 +537,8 @@ Copy and move constructors are distinguished by their prototypes.
 
 - Intuitively, an rvalue reference is a reference to a temporary.
 
-rvalue references have the property that, we can bind an rvalue reference to an rvalue but cannot bind an rvalue reference to an lvalue.
+rvalue references have the property that, we can bind an rvalue reference to an
+rvalue but cannot bind an rvalue reference to an lvalue.
 #+begin_src C++
   int i = 45;
   int &r = i;                     // OK, r refers to i
@@ -517,11 +580,13 @@ Note that rvalue reference variables are lvalue expressions!
   f(std::move(x));                // calls f(int&& x)
 #+end_src
 
-rvalue reference will let you bind a mutable reference to an rvalue, but not an lvalue. 
+rvalue reference will let you bind a mutable reference to an rvalue, but not an
+lvalue.
 
 
 ** Copy and Move assignment operators
-The copy and move assignment operators define what happens when we *assign* an object of a class type to another object of that same class type.
+The copy and move assignment operators define what happens when we *assign* an
+object of a class type to another object of that same class type.
 
 * Inheritance - derived classes
 If a class B inherits from class A, then A is B's parent & B is the child of A
@@ -539,10 +604,12 @@ A derived class is defined as such:
   };
 #+end_src
 Note:
-- The default specifier of =class= is =private= and so any class that derives from the derived class will be unable to access the base classes members.
+- The default specifier of =class= is =private= and so any class that derives from
+  the derived class will be unable to access the base classes members.
 - A base class must be _defined_, not just _declared_ before defining the derived class.
 - use =private:= when you want members to be contained to that specific class
-- use =protected:= when you want to share across classes but not add to the class interface.
+- use =protected:= when you want to share across classes but not add to the class
+  interface.
 - use =public:= when you want to create an interface.
 
 A derived class:
@@ -553,7 +620,8 @@ A derived class:
 ** 3 forms of inheritance
 Inheritance can be given certain constraints via access specifiers.
 #+begin_quote
-Under inheritance, the scope of a derived class is nested inside the scope of its base class(es).
+Under inheritance, the scope of a derived class is nested inside the scope of
+its base class(es).
 #+end_quote
 
 Suppose in the following we initially have the following base class,
@@ -583,10 +651,13 @@ Suppose in the following we initially have the following base class,
   bar.p3 = 1;                     // WRONG! p3 is inaccessible.
 #+end_src
 Under =public= inheritance,
-- _inherited members_ retain the same access control specification they had in the base class.
-  (because the scope of a derived class is nested inside the scope of its base class).
-- classes that derive from the derived class _will be able to access the same base class members as the derived class_.
-- =public= members of the base class become part of the interface of the derived class as well.
+- _inherited members_ retain the same access control specification they had in the
+  base class. (because the scope of a derived class is nested inside the scope
+  of its base class).
+- classes that derive from the derived class _will be able to access the same
+  base class members as the derived class_.
+- =public= members of the base class become part of the interface of the derived
+  class as well.
 
 *** private inheritance
 #+begin_src C++
@@ -604,7 +675,8 @@ Under =public= inheritance,
 #+end_src
 Under =private= inheritance,
 - _inherited members_ become private in derived class.
-- classes that derive from derived class _will not be able to access any members of the base_ class.
+- classes that derive from derived class _will not be able to access any members
+  of the base_ class.
 
 *** protected inheritance
 Under =protected= inheritance,
@@ -622,7 +694,8 @@ Under =protected= inheritance,
   bar.p3 = 1;                     // WRONG! p3 is inaccessible.
 #+end_src
 - _inherited members_ become protected in derived class.
-- classes that derive from derived class _will be able to access the same base class members as the derived_ class.
+- classes that derive from derived class _will be able to access the same base
+  class members as the derived_ class.
 
 ** Type Compatibility in Inheritance
 Objects in an inheritance hierarchy are commonly accessed through pointers.
@@ -647,28 +720,40 @@ Rules:
      Base *pB1 = pD;
      Base *pB2 = new Derived(7, 11.5);
    #+end_src
-   The ability to bind a pointer (or reference) to a base-class type to a derived object has an important consequence. \\
+   The ability to bind a pointer (or reference) to a base-class type to a
+   derived object has an important consequence. \\
    #+begin_center
-   When we use a pointer (or reference) to a base-class type, we don't know the actual type of the object to which the pointer or reference is bound. That object could be an object of the base class or an object of a derived class.
+   When we use a pointer (or reference) to a base-class type, we don't know the
+   actual type of the object to which the pointer or reference is bound. That
+   object could be an object of the base class or an object of a derived class.
    #+end_center
-   *e.g.*, In the above =pB= is a pointer to a base-class type, and is bound to an object of the base class. In contrast, =pB1= and =pB2= are pointers to a base-class type, but are bound to objects of a derived class.
-2) A type cast is required to perform the opposite assignment of a ase class pointer to a derived class pointer. e.g.,
+   *e.g.*, In the above =pB= is a pointer to a base-class type, and is bound to an
+   object of the base class. In contrast, =pB1= and =pB2= are pointers to a
+   base-class type, but are bound to objects of a derived class.
+2) A type cast is required to perform the opposite assignment of a ase class
+   pointer to a derived class pointer. e.g.,
    #+begin_src C++
      Derived *pD1 = static_cast<Derived *>(pB1);
    #+end_src
-   An error may result at *run time* however if the base class pointer does not actually point to a derived class object. e.g.,
+   An error may result at *run time* however if the base class pointer does not
+   actually point to a derived class object. e.g.,
    #+begin_src C++
      pD = static_cast<Derived *>pB;
    #+end_src
-   This statement will compile, but when it is executed, it leaves a =Derived= class pointer pointing to a =Base= class object. A subsequent access to =Derived= class members through =pD= will cause a runtime error.
+   This statement will compile, but when it is executed, it leaves a =Derived=
+   class pointer pointing to a =Base= class object. A subsequent access to =Derived=
+   class members through =pD= will cause a runtime error.
    #+begin_src C++
      cout << pD->bar;                // Error
    #+end_src
-   The error occurs because the =Base= class object pointed to by =pD= does not have a member =bar=. \\
-   Note that we are able to perform this cast when we are dealing with pointers, An object of a derived class cannot be cast to an object of a base class.
+   The error occurs because the =Base= class object pointed to by =pD= does not have
+   a member =bar=. \\
+   Note that we are able to perform this cast when we are dealing with pointers,
+   An object of a derived class cannot be cast to an object of a base class.
 
 These type compatibility rules apply additionally in two other cases.
-- A function that is declared as taking a pointer to a base class will accept a pointer to a derived class object as an actual parameter.
+- A function that is declared as taking a pointer to a base class will accept a
+  pointer to a derived class object as an actual parameter.
   #+begin_src C++
     class Base { 
     friend void foo(Base *);
@@ -685,10 +770,12 @@ These type compatibility rules apply additionally in two other cases.
       foo(pDer);                    // OK
     }
   #+end_src
-- A function that declares a return type of a pointer to a particualr class C may actually return a pointer to an object of a class derived from C.
+- A function that declares a return type of a pointer to a particualr class C
+  may actually return a pointer to an object of a class derived from C.
 
 * Overriding a Method
-If a derived class defines the same method (name and param types) as the base class, that method gets overridden 
+If a derived class defines the same method (name and param types) as the base
+class, that method gets overridden
 #+begin_src C++
   class Base {
   public:
@@ -709,24 +796,34 @@ However, this piece of code will call =Base='s =m1()=
   Base *foo = new Derived();
   foo->m1();                  // prints "Base m1"
 #+end_src
-Why is this the case? It is because a non-virtual method-call is resolved at compile time using the static type of the expression.
-- =Static Binding=: the compiler uses the type of the pointer to perform the binding at compile time.
-- Static binding chooses the function in the class of the base class pointer, ignoring any versions in the class of the object actually pointed to
+Why is this the case? It is because a non-virtual method-call is resolved at
+compile time using the static type of the expression.
+- =Static Binding=: the compiler uses the type of the pointer to perform the
+  binding at compile time.
+- Static binding chooses the function in the class of the base class pointer,
+  ignoring any versions in the class of the object actually pointed to
 
-What if you wanted this 2nd case to also call =Derived='s =m1()= This requires the use of =virtual=.
-- Use of =virtual= is called =Dynamic Binding=: the decision is made at run-time based upon the type of the actual object.
+What if you wanted this 2nd case to also call =Derived='s =m1()= This requires the
+use of =virtual=.
+- Use of =virtual= is called =Dynamic Binding=: the decision is made at run-time
+  based upon the type of the actual object.
 
 ** Static vs Dynamic Binding
 - Static Binding
-  - Use when you are sure that any subsequent derived classes will not want to override this operation dynamically (just redefine/hide)
+  - Use when you are sure that any subsequent derived classes will not want to
+    override this operation dynamically (just redefine/hide)
   - Use mostly for reuse or to form “concrete data types”
 - Dynamic Binding
-  - Use when the derived classes may be able to provide a different (e.g., more functional, more efficient) implementation that should be selected at run-time
+  - Use when the derived classes may be able to provide a different (e.g., more
+    functional, more efficient) implementation that should be selected at
+    run-time
   - Used to build dynamic type hierarchies & to form “abstract data types”
 
 ** Partial overriding
-Sometimes a derived class method wants to invoke the base class method. We want to do what the base class does, plus a little more, rather than doing something entirely different.
-Calls to a base class method can be accomplished by using the scope operator.
+Sometimes a derived class method wants to invoke the base class method. We want
+to do what the base class does, plus a little more, rather than doing something
+entirely different. Calls to a base class method can be accomplished by using
+the scope operator.
 
 Example:
 #+begin_src C++
@@ -741,8 +838,10 @@ Example:
 #+end_src
 
 * Virtual overriding
-- Virtual functions:: methods where the implementation may change in subsequent derived classes.
-=virtual= enables dynamic binding. The dynamic type of an object is the type of the object in memory that the variable or expression represents.
+- Virtual functions:: methods where the implementation may change in subsequent
+  derived classes.
+=virtual= enables dynamic binding. The dynamic type of an object is the type of
+the object in memory that the variable or expression represents.
 #+begin_src C++
   class Base {
   public:
@@ -760,49 +859,79 @@ Example:
 #+end_src
 
 #+begin_quote
-the compiler chooses the appropriate definition of f(), not by the type of reference, but by the type of object that the reference refers to. 
+the compiler chooses the appropriate definition of f(), not by the type of
+reference, but by the type of object that the reference refers to.
 #+end_quote
 
-- The virtual function specification tells the compiler to create a pointer to a function f(), but to not fill in the value of the pointer until the function is actually called.
-- Declaring a function virtual will make the compiler check the type of each object to see if it defines a more specific version of the virtual function;
+- The virtual function specification tells the compiler to create a pointer to a
+  function f(), but to not fill in the value of the pointer until the function
+  is actually called.
+- Declaring a function virtual will make the compiler check the type of each
+  object to see if it defines a more specific version of the virtual function;
 
 ** Syntax of Virtual Functions
-- Specifying the keyword virtual for any base class member function enables dynamic binding for that function.
-- Any derived class can override that function by defining a function with the same signature and return type.
+- Specifying the keyword virtual for any base class member function enables
+  dynamic binding for that function.
+- Any derived class can override that function by defining a function with the
+  same signature and return type.
 - The keyword virtual does not need to be re-specified within the derived class.
-- Once a member function is declared to be virtual in a base class, all functions with that name, signature, and return type in any derived class remain virtual and can be overridden.
+- Once a member function is declared to be virtual in a base class, all
+  functions with that name, signature, and return type in any derived class
+  remain virtual and can be overridden.
 
 ** Rules of Dynamic Binding
 1) Virtual functions cannot be static member functions.
-2) The signature and return type must be the same for all implementations of the virtual function.
-3) While the function must be defined as a virtual function within a direct or indirect base class, it need not be defined in those derived classes where the inherited behavior does not need to differ.
-4) And finally, the keyword virtual is only required within the base class itself; derived class implementations of the overridden function do not need to repeat the use of that keyword.
-5) Once a member function is declared to be virtual, it remains virtual for all derived classes.
+2) The signature and return type must be the same for all implementations of the
+   virtual function.
+3) While the function must be defined as a virtual function within a direct or
+   indirect base class, it need not be defined in those derived classes where
+   the inherited behavior does not need to differ.
+4) And finally, the keyword virtual is only required within the base class
+   itself; derived class implementations of the overridden function do not need
+   to repeat the use of that keyword.
+5) Once a member function is declared to be virtual, it remains virtual for all
+   derived classes.
 
 ** Abstract class / pure virtual functions
-It is possible for a base class method to be pure virtual. This means that the method is not even defined in the base class.
+It is possible for a base class method to be pure virtual. This means that the
+method is not even defined in the base class.
 #+begin_src C++
 virtual void display() const = 0;
 #+end_src
-*Any class with a pure virtual function is called an abstract class*. The method must be implemented in a derived class for it to be a concrete class. Otherwise, the derived class will also be an abstract class.
-*You can never instantiate an abstract class* (even if you don’t use the virtual functions), but you can have pointers to it.
+*Any class with a pure virtual function is called an abstract class*. The method
+*must be implemented in a derived class for it to be a concrete class. Otherwise,
+*the derived class will also be an abstract class. You can never instantiate an
+*abstract class* (even if you don’t use the virtual functions), but you can have
+*pointers to it.
 
-- Purpose: it may be convienient to have a base class for an inheritance hierarchy that defines a member function that must be implemented in every derived class, but which cannot be implemented by the base class itself because the details needed for a reasonable implementation can only be found in the derived classes.
+- Purpose: it may be convienient to have a base class for an inheritance
+  hierarchy that defines a member function that must be implemented in every
+  derived class, but which cannot be implemented by the base class itself
+  because the details needed for a reasonable implementation can only be found
+  in the derived classes.
 
 * Overriding vs. Overloading
 There are two major differences between overloading and overriding.
-- Overloading requires unique signatures whereas overriding requires the same signature and return type.
-- Second, overloading requires that each overloaded version of the function be specified within the same scope whereas overriding requires each overridden version be specified within the scope of each derived class.
+- Overloading requires unique signatures whereas overriding requires the same
+  signature and return type.
+- Second, overloading requires that each overloaded version of the function be
+  specified within the same scope whereas overriding requires each overridden
+  version be specified within the scope of each derived class.
 
 * TODO Multiple Inheritance
 * TODO Virtual Inheritance
 
 * Friendship
-The =friend= keyword is used to _give other classes and functions access to private and protected members of the class_, even though they are defined outside the class's scope.
+The =friend= keyword is used to _give other classes and functions access to private
+and protected members of the class_, even though they are defined outside the
+class's scope.
 #+begin_quote
-This is useful so you can leverage the abilities of other class's that aren't derived from your class's base class or when you want to add functions to an interface that are not apart your class's class.
+This is useful so you can leverage the abilities of other class's that aren't
+derived from your class's base class or when you want to add functions to an
+interface that are not apart your class's class.
 #+end_quote
-Note: Friends are not members of the class and are not affected by the access control of the section in which they are declared.
+Note: Friends are not members of the class and are not affected by the access
+control of the section in which they are declared.
 
 This is how you use =friend=,
 #+begin_src C++
@@ -818,27 +947,39 @@ This is how you use =friend=,
 
 * Operator Overloading
 #+begin_quote
-C++ allows you to redefine how the standard operators work when used with class objects.
+C++ allows you to redefine how the standard operators work when used with class
+objects.
 #+end_quote
-This is done by creating functions with special names as members of the class for which you wish to modify the operator behavior for. This is done as follows:
+This is done by creating functions with special names as members of the class
+for which you wish to modify the operator behavior for. This is done as follows:
 #+begin_quote
 The keyword ~operator~ followed by the symbol for the operator being defined.
 #+end_quote
-Note that like any other function, an overloaded operator has a return type, a parameter list, and a body.
+Note that like any other function, an overloaded operator has a return type, a
+parameter list, and a body.
 
 *NOTE* \\
-1. _An overloaded operator function has the same number of parameters as the operator has operands_. (when not a class member; overloaded operators that are class functions have 1 less parameters in their definition).
-2. For operator member functions, =this= is bound to the left-hand operand.
-   That is, since an operator function is an instance of a class, it can only be called through an object of the class. The object of the class through which it is called is considered the left operand of the operation statement and the right operand is the parameter being passed to the operator function.
-3. An operator function must either be a member of a class or have at least one parameter of class type. \\
+1. _An overloaded operator function has the same number of parameters as the
+   operator has operands_. (when not a class member; overloaded operators that
+   are class functions have 1 less parameters in their definition).
+2. For operator member functions, =this= is bound to the left-hand operand. That
+   is, since an operator function is an instance of a class, it can only be
+   called through an object of the class. The object of the class through which
+   it is called is considered the left operand of the operation statement and
+   the right operand is the parameter being passed to the operator function.
+3. An operator function must either be a member of a class or have at least one
+   parameter of class type. \\
    e.g.,
    #+begin_src C++
    // error: cannot redefine the built-in operator for ints
    int operator+(int, int);
    #+end_src
 
-5. (+,-,*,&) can be both unary and binary operators. Either or both of these operators can be overloaded. The number of parameters determines which operator is being defined.
-6. An overloaded operator has the same precedence and associativity as the corresponding built-in operator.
+5. (+,-,*,&) can be both unary and binary operators. Either or both of these
+   operators can be overloaded. The number of parameters determines which
+   operator is being defined.
+6. An overloaded operator has the same precedence and associativity as the
+   corresponding built-in operator.
 
 
  
@@ -876,10 +1017,16 @@ Note in particular the line.
   instanceTWO = instanceONE;
 #+end_src
 
-- This sets =instanceTWO= to exactly the same value as =instanceONE=. So memberwise copy occurs and =instanceTWO.bar= ends up pointing to the same memory as =instanceONE.bar=.
-- Note that this creates the _same issue that was present with copy constructors_. That is, since =instanceONE.bar= and =instanceTWO.bar= point to the same memory; modifying either =instanceONE.bar= or =instanceTWO.bar= will have the unintended sideeffect of modifying the other.
+- This sets =instanceTWO= to exactly the same value as =instanceONE=. So memberwise
+  copy occurs and =instanceTWO.bar= ends up pointing to the same memory as
+  =instanceONE.bar=.
+- Note that this creates the _same issue that was present with copy constructors_.
+  That is, since =instanceONE.bar= and =instanceTWO.bar= point to the same memory;
+  modifying either =instanceONE.bar= or =instanceTWO.bar= will have the unintended
+  sideeffect of modifying the other.
 
-Copy constructors are called only when an object is being initialized during its definition.
+Copy constructors are called only when an object is being initialized during its
+definition.
  
 Example
  #+begin_src C++
@@ -896,13 +1043,17 @@ e.g., a statement such as
   Two = One;                      // Copy ctor not called.
 #+end_src
 
-To fix the problems memberwise copying incurs for classes with pointer variables it becomes necessary to /overload/ the assignment operator.
+To fix the problems memberwise copying incurs for classes with pointer variables
+it becomes necessary to /overload/ the assignment operator.
 
 ** = Overloading
-To provide another version of the assignment operator capable of handeling the same nuances the copy constructor addressed, we define an _operator function_, called ~operator=~ as a member function of the class.
+To provide another version of the assignment operator capable of handeling the
+same nuances the copy constructor addressed, we define an _operator function_,
+called ~operator=~ as a member function of the class.
 
 *** operator= function
-Here is the previous example with the addition of the assignment operator overloaded.
+Here is the previous example with the addition of the assignment operator
+overloaded.
 #+begin_src C++
 #include <iostream>
 class Sequence {
