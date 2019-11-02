@@ -1,11 +1,13 @@
 #+TITLE:C++ Basics
 * Lvalues and Rvalues
 #+begin_quote
-An lvalue is an expression that refers to a memory location and allows us to take the address of that memory location via the & operator.
+An lvalue is an expression that refers to a memory location and allows us to
+take the address of that memory location via the & operator.
 #+end_quote
 
 #+begin_quote
-An rvalue is an expression that is not an lvalue. Really these are things such as constants or otherwise temporary objects.
+An rvalue is an expression that is not an lvalue. Really these are things such
+as constants or otherwise temporary objects.
 #+end_quote
 Some examples
 #+begin_src C++
@@ -30,8 +32,13 @@ Some examples
 
 [[https://docs.microsoft.com/en-us/cpp/cpp/lvalues-and-rvalues-visual-cpp?view=vs-2019][msft's explanation based off the C++17 standard]]
 
-In layman's terms, lvalues are associated with storage. You can access storage to get a value (lvalues can legally be used on the right and left side of = despite the suggestive =l= in lvalue) and you can replace a value in storage with another value (i.e. with lvalues you can perform assignment).
-rvalues are constants/values that we may or may not be interested storing inside lvalues (might only be interested in using an rvalue as part of a computation expression e.g. the =2= in the assignment =half = full / 2= would be considered an rvalue).
+In layman's terms, lvalues are associated with storage. You can access storage
+to get a value (lvalues can legally be used on the right and left side of =
+despite the suggestive =l= in lvalue) and you can replace a value in storage with
+another value (i.e. with lvalues you can perform assignment). rvalues are
+constants/values that we may or may not be interested storing inside lvalues
+(might only be interested in using an rvalue as part of a computation expression
+e.g. the =2= in the assignment =half = full / 2= would be considered an rvalue).
 
 * Classic/Ordinary C style pointers
 Pointers are declarations of the form.
@@ -40,10 +47,19 @@ Pointers are declarations of the form.
 #+end_src
 This assigns =foo= to the memory address of the variable =bar=;
 - To access the value of =bar=, you must make statements of the form =*foo=.
-=*= is the _indirection_ or _dereference_ operator which enables you to access the object the pointer points to. This becomes important in situations where you want a function to modify its arguments (albeit references provide cleaner method of accomplishing this—more on this later).
+=*= is the _indirection_ or _dereference_ operator which enables you to access the
+object the pointer points to. This becomes important in situations where you
+want a function to modify its arguments (albeit references provide cleaner
+method of accomplishing this—more on this later).
 
-By default functions in =C/C++= are _called by value_, which means that functions work with _copies_ of the passed parameters instead of the actual parameters themselves.
-This may be fine for some problems, (e.g. computing the sum of two variables) but in other cases we are interested in modifying the variables themselves. Pointers help us here because for a function with pointer parameters, arguments _memory addresses_ are called by value; so dereferencing them provides access to the original parameters themselves. Here is the classic =swap= example where we want to exchange the values stored between two variables. 
+By default functions in =C/C++= are _called by value_, which means that functions
+work with _copies_ of the passed parameters instead of the actual parameters
+themselves. This may be fine for some problems, (e.g. computing the sum of two
+variables) but in other cases we are interested in modifying the variables
+themselves. Pointers help us here because for a function with pointer
+parameters, arguments _memory addresses_ are called by value; so dereferencing
+them provides access to the original parameters themselves. Here is the classic
+=swap= example where we want to exchange the values stored between two variables.
 e.g.,
 #+begin_src C++
   void swap(int* x, int* y)
@@ -63,15 +79,22 @@ e.g.,
 Note that although =a= and =b= have been declared integers, =&a= and =&b= are considered pointers.
 
 ** Dynamic Memory Allocation with C-style pointers
-Dynamic memory is on-the-fly runtime memory allocation in heap. This is achieved through functions such as =malloc=, =calloc=, =realloc=, =free=. Working with dynamic memory can be tricky but the idea behind the process is pretty simple.
+Dynamic memory is on-the-fly runtime memory allocation in heap. This is achieved
+through functions such as =malloc=, =calloc=, =realloc=, =free=. Working with dynamic
+memory can be tricky but the idea behind the process is pretty simple.
 1) Use =malloc= to set aside a portion of heap to work with.
 2) Keep track of the address returned by =malloc= (Needed for free'ing the heap segment later).
 3) Free heap after finished work with allocated memory.
 
 The errors that plague people come from:
 *** Memory Leaks
-A memory leak is simply wasted memory that accumulates that the programmer has either improperly handled, or neglected to handle the free'ing of.
-I say neglected because sometimes for (smaller) applications this isn't really a big deal. The OS will clean up the virtual address space of the program for you upon exit regardless of how it was handled during runtime. So if your not doing any intensive memory allocating, its probably ok to leave the leak (albeit bad practice).
+A memory leak is simply wasted memory that accumulates that the programmer has
+either improperly handled, or neglected to handle the free'ing of. I say
+neglected because sometimes for (smaller) applications this isn't really a big
+deal. The OS will clean up the virtual address space of the program for you upon
+exit regardless of how it was handled during runtime. So if your not doing any
+intensive memory allocating, its probably ok to leave the leak (albeit bad
+practice).
 
 Memory leaks happen whenever the address returned from =malloc= is never =free='d.
 
@@ -114,7 +137,10 @@ Declaring a function-local variable to this value and going out of scope.
   }
 #+end_src
 **** Incrementing the return address (e.g. ptr++)
-... and trying to free the new incremented address. The argument to =free= must be a pointer to a previously returned address from a memory allocation function. Technically this should result in undefined behavior but depending on the compiler, this will likely end up as a memory leak.
+... and trying to free the new incremented address. The argument to =free= must be
+a pointer to a previously returned address from a memory allocation function.
+Technically this should result in undefined behavior but depending on the
+compiler, this will likely end up as a memory leak.
 #+begin_src C++
   char *strptr_alloc (size_t len)
   {
@@ -137,7 +163,9 @@ Declaring a function-local variable to this value and going out of scope.
   }
 #+end_src
 **** realloc failures
-When =realloc= is unable to allocate memory, it returns =NULL=. If you overwrite realloc's argument buffer by assignment to its return value, the original buffer will be lost. So avoid statements such as:
+When =realloc= is unable to allocate memory, it returns =NULL=. If you overwrite
+realloc's argument buffer by assignment to its return value, the original buffer
+will be lost. So avoid statements such as:
 #+begin_src C++
   buffer = realloc (buffer, new_size);
 #+end_src
@@ -150,12 +178,19 @@ and instead use:
 Freeing an area of heap that has already been free'd. This causes undefined behavior.
 
 ** C style pointer Idioms
-I don't really like using these idioms, but they make come up infrequently so it is useful to know them.
+I don't really like using these idioms, but they make come up infrequently so it
+is useful to know them.
 
-*** =*p++=
+*** =*p++= is a =L-Value=
 return =*p=, increment =p= (address =p= is incremented NOT the =*p= value). \\
 
-This can be confusing because a precedence table will show that postfix =++= holds a higher precedence than =*=. Higher precedence means that postfix operation is applied first, but the evaluating the expression makes you think the indirection is performed first. But if this were the case, then you would be incrementing the value pointed by p after evaluating the expression, and this is not so! This can be explained with a quick example and examining the relevant portion of disassembly.
+This can be confusing because a precedence table will show that postfix =++= holds
+a higher precedence than =*=. Higher precedence means that postfix operation is
+applied first, but the evaluating the expression makes you think the indirection
+is performed first. But if this were the case, then you would be incrementing
+the value pointed by p after evaluating the expression, and this is not so! This
+can be explained with a quick example and examining the relevant portion of
+disassembly.
 
 Suppose we have the following C program.
 #+begin_src C
@@ -177,7 +212,7 @@ The part we are interested in, =*p++ = 10;= is disassembled below.
 #+end_src
 The assembly shows that the stack location holding the definition of =p= is indeed incremented before indirection takes place, however the original value of =p= has been loaded into =eax=, and so =10= is still assigned to the initial address held by =p=. Note that, the above program illustrates a memory leak as the return address of =malloc= is now lost.
 
-*** =(*p)++=
+*** =(*p)++= is a =R-Value=
 return =*p=, increment =*p=. \\
 
 Here indirection is taking place first, and so the postfix increment acts upon the value pointed to by p.             
@@ -204,7 +239,7 @@ The relevant disassembly corresponding to =(*p)++= is shown below.
 #+end_src
 Note that =lea edx, [eax + 1]= does not perform indirection despite the bracing. =lea= is used to perform the calculation =*p + 1= and to store it in =edx=. 
 
-*** =*++p=
+*** =*++p= is a =L-Value=
 increment =p=, return =*p=. \\
 
 Incrementing p occurs first, then indirection is applied to the new value of p.
@@ -225,11 +260,11 @@ Disassembly of =*++p = 10=,
   1a:	mov    dword ptr [eax], 10      ; *p' = 10
 #+end_src
    
-*** =++(*p)=
+*** =++(*p)= is a =R-Value=
 indirect =p=, increment =*p=, return updated =*p=. \\
 
 indirection is performed first and then the indirected value is incremented and returned.
-- Note that this expression cannot be used as an lvalue. =++*p = 10;= is illegal.
+- Note that this expression cannot be used as an lvalue. =++(*p) = 10;= is illegal.
 #+begin_src C
   #include <stdio.h>
   #include <stdlib.h>
