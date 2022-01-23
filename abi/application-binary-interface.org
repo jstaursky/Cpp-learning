@@ -1,0 +1,84 @@
+What follows is of utmost importance to the shared library developer. The list comes from [[https://www.acodersjourney.com/20-abi-breaking-changes/][here]]
+
+* ABI Breaking Changes
+** Functions
+
+1. Name changes.
+
+2. signature changes.
+
+   - Changing the return type.
+
+   - Changing the parameter types.
+
+3. const or volatile qualifier changes.
+   
+4. Change the calling convention of an exported function ( from _stdcall to
+    _cdecl and vice versa)
+
+** Class Changes
+
+1. Removal of a class in a _header file_.
+
+2. _Removal of a method_ from a class
+
+3. _Change the signature_ of any method in the class. This includes
+
+   - Changing the _return type_
+
+   - Changing the _order of parameters_
+
+   - Change the _access rights_ ( eg. public to protected)
+
+   - removing or adding parameters
+
+4. Add, remove, or _re-ordering_ member variables in a class
+
+5. _Changing the type_ of any member variable in a class
+
+6. _Inheritance_ changes
+
+   - inheriting from a different base class
+
+   - inheriting from additional base classes
+
+   - removal of base class(es)
+
+7. Change the _template arguments_ (add, remove,r, re-order) of a templated class
+
+8. _Inlining_ a function in an class
+
+   - When a function is declared inlined, the compiler inlines it where the
+     function is called and may not generate an out-of-line copy. The client
+     binary, which was thus far depending on the exported out-of-line function
+     signature cannot locate it anymoe and will fail in unexpected ways (crash
+     most likely).
+     
+9. Change the _const or volatile qualifier_ of a member function
+
+   - Some compilers encode the constness of a function in the mangled name and
+     hence changing the function from const to non-const changes the mangled
+     name.
+      
+10. Adding an explicit copy constructor or destructor to a class that would
+    _otherwise have implicit versions_.
+     
+*** Virtual Functions     
+
+1. Changing a non-virtual method to be virtual, and vice versa.
+   
+2. Adding a virtual method to a class with no existing virtual methods.
+     
+3. Changing the order of virtual methods.
+
+4. Adding new virtual methods.
+
+    - However, some compilers may preserve binary compatibility if you only add
+      new virtual methods after existing ones.
+
+5. Overriding a virtual that doesn't come from a base class.
+
+** Globals     
+1. _Changing the type_ of global data
+
+2. Changing the const or volatile qualifiers on global data
